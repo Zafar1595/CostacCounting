@@ -35,6 +35,8 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import uz.finlog.costaccounting.entity.Expense
+import uz.finlog.costaccounting.util.AppConstants.russianMonths
+import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
 import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneId
@@ -62,7 +64,7 @@ fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
         ) {
             stats.forEach {
                 Text(
-                    "${it.text}: ${it.transactionAmount} сум",
+                    "${it.text}: ${it.transactionAmount} $selectedCurrency",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)
                 )
@@ -84,22 +86,18 @@ fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
 @Composable
 fun MonthSelector(selected: YearMonth, onMonthSelected: (YearMonth) -> Unit) {
     val months = (0..11).map { YearMonth.now().minusMonths(it.toLong()) }
-    val russianMonths = listOf(
-        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-    )
     var expanded by remember { mutableStateOf(false) }
 
     Box {
         Text(
-            text = russianMonths[selected.monthValue - 1],
+            text = "${russianMonths[selected.monthValue - 1]} ${selected.year}",
             modifier = Modifier.clickable { expanded = true }
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             months.forEach { month ->
                 DropdownMenuItem(
                     text = {
-                        Text(russianMonths[month.monthValue - 1])
+                        Text("${russianMonths[month.monthValue - 1]} ${month.year}")
                     },
                     onClick = {
                         onMonthSelected(month)
@@ -166,10 +164,6 @@ fun StatsChart(expenses: List<Expense>) {
                 textColor = Color.BLACK
                 textSize = 10f
             }
-
-            // Наклон значений вручную — MPAndroidChart этого напрямую не поддерживает.
-            // Возможное решение — использовать LabelView или Canvas, но это уже хак.
-
             chart.invalidate()
         }
     )

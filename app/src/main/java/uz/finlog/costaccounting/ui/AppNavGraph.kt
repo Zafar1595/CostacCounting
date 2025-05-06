@@ -12,6 +12,8 @@ import uz.finlog.costaccounting.ui.screens.home.HomeScreen
 import uz.finlog.costaccounting.ui.screens.home.HomeViewModel
 import uz.finlog.costaccounting.ui.screens.home.add_expense_screen.AddExpenseScreen
 import uz.finlog.costaccounting.ui.screens.home.add_expense_screen.AddExpenseScreenViewModel
+import uz.finlog.costaccounting.ui.screens.settings.SettingsScreen
+import uz.finlog.costaccounting.ui.screens.settings.SettingsViewModel
 import uz.finlog.costaccounting.ui.screens.stats.StatsScreen
 import uz.finlog.costaccounting.ui.screens.stats.StatsScreenViewModel
 
@@ -30,6 +32,10 @@ fun AppNavGraph(innerPadding: PaddingValues, navController: NavHostController) {
         composable(ScreenRoute.Add.route) {
             val viewModel: AddExpenseScreenViewModel = koinViewModel()
             AddExpenseScreen(navController = navController, viewModel = viewModel)
+        }
+        composable(ScreenRoute.Settings.route) {
+            val viewModel: SettingsViewModel = koinViewModel()
+            SettingsScreen(viewModel = viewModel)
         }
     }
 }
