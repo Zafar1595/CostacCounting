@@ -84,23 +84,22 @@ fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
 @Composable
 fun MonthSelector(selected: YearMonth, onMonthSelected: (YearMonth) -> Unit) {
     val months = (0..11).map { YearMonth.now().minusMonths(it.toLong()) }
+    val russianMonths = listOf(
+        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+    )
     var expanded by remember { mutableStateOf(false) }
 
     Box {
         Text(
-            text = selected.month.getDisplayName(TextStyle.FULL, Locale("RU")).replaceFirstChar {
-                it.titlecase(Locale("RU"))
-            },
+            text = russianMonths[selected.monthValue - 1],
             modifier = Modifier.clickable { expanded = true }
         )
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             months.forEach { month ->
                 DropdownMenuItem(
                     text = {
-                        Text(
-                            month.month.getDisplayName(TextStyle.FULL, Locale("RU"))
-                                .replaceFirstChar { it.titlecase(Locale("RU"))
-                                })
+                        Text(russianMonths[month.monthValue - 1])
                     },
                     onClick = {
                         onMonthSelected(month)
