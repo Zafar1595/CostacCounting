@@ -15,6 +15,7 @@ composeBom = "2024.09.00"
 lifecycleViewmodelCompose = "2.8.7"
 mpandroidchart = "v3.1.0"
 navigationCompose = "2.8.9"
+playServicesAds = "24.2.0"
 roomCompiler = "2.7.1"
 roomRuntime = "2.7.1"
 
@@ -43,6 +44,7 @@ koin-android = { module = "io.insert-koin:koin-android", version.ref = "koinAndr
 koin-androidx-compose = { module = "io.insert-koin:koin-androidx-compose", version.ref = "koinAndroidxCompose" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koinCore" }
 mpandroidchart = { module = "com.github.PhilJay:MPAndroidChart", version.ref = "mpandroidchart" }
+play-services-ads = { module = "com.google.android.gms:play-services-ads", version.ref = "playServicesAds" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

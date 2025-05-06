@@ -10,12 +10,14 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import uz.finlog.costaccounting.entity.Expense
+import uz.finlog.costaccounting.util.AppConstants.hideNavigationBar
 import java.time.Instant
 import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenViewModel) {
+    hideNavigationBar = true
     var title by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
     var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }

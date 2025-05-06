@@ -25,6 +25,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.BarChart
@@ -112,6 +113,7 @@ fun MonthSelector(selected: YearMonth, onMonthSelected: (YearMonth) -> Unit) {
 @Composable
 fun StatsChart(expenses: List<Expense>) {
     val context = LocalContext.current
+    val colorScheme = MaterialTheme.colorScheme
 
     AndroidView(
         factory = {
@@ -123,6 +125,9 @@ fun StatsChart(expenses: List<Expense>) {
                 description.isEnabled = false
                 setFitBars(true)
                 axisRight.isEnabled = false
+                legend.isEnabled = false // отключим легенду для чистоты
+                setScaleEnabled(false) // отключим масштабирование
+                setTouchEnabled(false) // запретить взаимодействие, если не нужно
             }
         },
         update = { chart ->
@@ -138,14 +143,12 @@ fun StatsChart(expenses: List<Expense>) {
             }
 
             val dataSet = BarDataSet(entries, "Расходы").apply {
-                color = Color.BLUE
-                valueTextColor = Color.BLACK
+                color = colorScheme.primary.toArgb()
+                valueTextColor = colorScheme.onBackground.toArgb()
                 valueTextSize = 12f
             }
 
             val barData = BarData(dataSet)
-
-            // Кастомный форматтер значений
             barData.setValueFormatter(object : ValueFormatter() {
                 override fun getBarLabel(barEntry: BarEntry?): String {
                     return barEntry?.y?.toInt()?.toString() ?: ""
@@ -161,9 +164,18 @@ fun StatsChart(expenses: List<Expense>) {
                 granularity = 1f
                 setDrawGridLines(false)
                 labelRotationAngle = 90f
-                textColor = Color.BLACK
+                textColor = colorScheme.onBackground.toArgb()
                 textSize = 10f
             }
+
+            // Настройка левой оси Y
+            chart.axisLeft.apply {
+                textColor = colorScheme.onBackground.toArgb()
+                textSize = 10f
+                gridColor = colorScheme.outline.toArgb()
+            }
+
+            chart.setBackgroundColor(colorScheme.background.toArgb())
             chart.invalidate()
         }
     )

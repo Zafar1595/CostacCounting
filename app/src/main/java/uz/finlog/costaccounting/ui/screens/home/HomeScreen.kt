@@ -25,8 +25,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import uz.finlog.costaccounting.ui.AdaptiveAdBanner
 import uz.finlog.costaccounting.ui.getDateString
 import uz.finlog.costaccounting.ui.toDate
+import uz.finlog.costaccounting.util.AppConstants.adUnitId
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +67,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding).padding(horizontal = 16.dp)
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp)
         ) {
             var lastDate: String? = null
             items(expenses) { expense ->
@@ -95,7 +98,10 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                                 .fillMaxWidth(),
                             verticalAlignment = Alignment.Bottom
                         ) {
-                            Text("${expense.amount} $selectedCurrency", style = MaterialTheme.typography.bodyLarge)
+                            Text(
+                                "${expense.amount} $selectedCurrency",
+                                style = MaterialTheme.typography.bodyLarge
+                            )
                             Spacer(modifier = Modifier.weight(1f)) // отталкивает дату вправо
 
                             Column(

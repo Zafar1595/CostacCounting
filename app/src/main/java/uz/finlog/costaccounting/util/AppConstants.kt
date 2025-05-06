@@ -35,4 +35,9 @@ object AppConstants {
         selectedCurrency = currency.first
     }
     var selectedCurrency: String = ""
+
+
+    val adUnitId = "ca-app-pub-3940256099942544/6300978111"
+
+    var hideNavigationBar: Boolean = false
 }

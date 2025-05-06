@@ -73,4 +73,6 @@ dependencies {
     kapt(libs.androidx.room.compiler)
 
     implementation(libs.mpandroidchart)
+
+    implementation(libs.play.services.ads)
 }
