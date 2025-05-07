@@ -37,8 +37,6 @@ import com.google.android.gms.ads.AdView
 import org.koin.androidx.compose.koinViewModel
 import uz.finlog.costaccounting.ui.screens.settings.SettingsViewModel
 import uz.finlog.costaccounting.util.AppConstants.adUnitId
-import uz.finlog.costaccounting.util.AppConstants.hideNavigationBar
-import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
 import uz.finlog.costaccounting.util.AppConstants.setSelectedCurrency
 
 sealed class ScreenRoute(
@@ -50,6 +48,12 @@ sealed class ScreenRoute(
     data object Stats : ScreenRoute("Статистика", "stats", Icons.Outlined.BarChart)
     data object Add : ScreenRoute("Добавить", "add", Icons.Default.Add)
     data object Settings : ScreenRoute("Настройки", "settings", Icons.Default.Settings)
+    data object Detail : ScreenRoute("Детали расхода", "detail", null) {
+        fun routeWithId(id: Int): String = "$route/$id"
+    }
+    data object Edit : ScreenRoute("Редактирование данных", "edit", null) {
+        fun routeWithId(id: Int): String = "$route/$id"
+    }
 }
 
 

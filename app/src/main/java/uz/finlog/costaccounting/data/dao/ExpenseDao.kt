@@ -5,6 +5,7 @@ import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 import uz.finlog.costaccounting.data.entity.ExpenseEntity
 
@@ -32,4 +33,11 @@ interface ExpenseDao {
 
     @Query("DELETE FROM expenses")
     suspend fun clearAll()
+
+    @Query("SELECT * FROM expenses WHERE id = :expenseId")
+    suspend fun getExpenseById(expenseId: Int): ExpenseEntity?
+
+    @Update
+    suspend fun update(expense: ExpenseEntity)
+
 }

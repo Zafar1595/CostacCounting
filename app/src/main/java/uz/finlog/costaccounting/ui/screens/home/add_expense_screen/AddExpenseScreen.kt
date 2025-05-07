@@ -9,16 +9,15 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import uz.finlog.costaccounting.entity.Expense
-import uz.finlog.costaccounting.util.AppConstants.hideNavigationBar
 import java.time.Instant
 import java.time.ZoneId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenViewModel) {
-    hideNavigationBar = true
     var title by remember { mutableStateOf("") }
     var amount by remember { mutableStateOf("") }
+    var comment by remember { mutableStateOf("") }
     var selectedDateMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val datePickerState = rememberDatePickerState(initialSelectedDateMillis = selectedDateMillis)
     var showDatePicker by remember { mutableStateOf(false) }
@@ -68,6 +67,17 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
             )
             Spacer(modifier = Modifier.height(12.dp))
 
+            OutlinedTextField(
+                value = comment,
+                onValueChange = { comment = it },
+                label = { Text("Комментарий") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(120.dp), // можно настроить под нужную высоту
+                singleLine = false,
+                maxLines = 5
+            )
+            Spacer(modifier = Modifier.height(12.dp))
             // Дата
             OutlinedButton(
                 onClick = { showDatePicker = true },
@@ -107,11 +117,14 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                                 Expense(
                                     id = 0,
                                     title = title,
+                                    comment = comment,
                                     amount = amt,
                                     date = selectedDateMillis
                                 )
                             )
                             navController.popBackStack()
+                        } else {
+                            viewModel.showMessage("Введите название и сумму")
                         }
                     },
                     modifier = Modifier.weight(1f)

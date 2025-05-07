@@ -1,6 +1,6 @@
 package uz.finlog.costaccounting.ui.screens.home
 
-import android.util.Log
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -25,17 +26,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import uz.finlog.costaccounting.ui.AdaptiveAdBanner
+import uz.finlog.costaccounting.ui.ScreenRoute
 import uz.finlog.costaccounting.ui.getDateString
-import uz.finlog.costaccounting.ui.toDate
-import uz.finlog.costaccounting.util.AppConstants.adUnitId
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
 import uz.finlog.costaccounting.util.DateUtils.toDisplayDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
-    viewModel.getAllexpenses()
+    LaunchedEffect(Unit) {
+        viewModel.getAllexpenses()
+    }
     val expenses by viewModel.expenses.collectAsState()
     expenses.sortedBy { it.date }
     val groupedExpenses = expenses.groupBy { it.date.toDisplayDate() }
@@ -87,7 +88,16 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                     Card(
                         modifier = Modifier
                             .padding(vertical = 8.dp)
-                            .fillMaxWidth(),
+                            .fillMaxWidth()
+                            .clickable(onClick = {
+                                navController.navigate(ScreenRoute.Detail.routeWithId(expense.id)) {
+                                    popUpTo(navController.graph.startDestinationId) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
+                                }
+                            }),
                         elevation = CardDefaults.cardElevation(4.dp)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {

@@ -11,6 +11,7 @@ import uz.finlog.costaccounting.data.repository.ExpenseRepositoryImpl
 import uz.finlog.costaccounting.domain.ExpenseRepository
 import uz.finlog.costaccounting.ui.screens.home.HomeViewModel
 import uz.finlog.costaccounting.ui.screens.home.add_expense_screen.AddExpenseScreenViewModel
+import uz.finlog.costaccounting.ui.screens.home.detail.DetailViewModel
 import uz.finlog.costaccounting.ui.screens.settings.SettingsViewModel
 import uz.finlog.costaccounting.ui.screens.stats.StatsScreenViewModel
 import uz.finlog.costaccounting.util.CsvManager
@@ -20,6 +21,7 @@ val appModule = module {
     viewModel { AddExpenseScreenViewModel(get()) }
     viewModel { StatsScreenViewModel(get()) }
     viewModel { SettingsViewModel(get(), get(), get()) }
+    viewModel { DetailViewModel(get()) }
 
     single { CsvManager(get()) }
 }

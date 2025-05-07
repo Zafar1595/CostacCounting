@@ -26,7 +26,9 @@ class ExpenseRepositoryImpl(private val dao: ExpenseDao) : ExpenseRepository {
     override suspend fun getExpensesForMonth(month: YearMonth): List<Expense> =
         getDailyExpensesForMonth(month, dao.getBetweenDates().map { it.toExpense() })
 
-
+    /**
+     * Возвращает только те траты, которые были сделаны в указанном месяце.
+     */
     private fun getDailyExpensesForMonth(month: YearMonth, expenses: List<Expense>): List<Expense> {
         return expenses
             .filter { expense ->
@@ -44,6 +46,7 @@ class ExpenseRepositoryImpl(private val dao: ExpenseDao) : ExpenseRepository {
                 Expense(
                     id = 0,
                     title = date.dayOfMonth.toString(),
+                    comment = expensesForDay.joinToString { it.comment },
                     amount = expensesForDay.sumOf { it.amount },
                     date = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
                 )
@@ -51,13 +54,12 @@ class ExpenseRepositoryImpl(private val dao: ExpenseDao) : ExpenseRepository {
             .sortedBy { it.date }
     }
 
-    /**
-     * Возвращает только те траты, которые были сделаны сегодня
-     * @return Pair<Double, Double> - Pair(todaySum, monthSum)
-     */
     override suspend fun getExpensesForToday(): Pair<Double, Double> =
         calculateTodayAndMonthSums(dao.getBetweenDates().map { it.toExpense() })
 
+    /**
+     * Возвращает только те траты, которые были сделаны сегодня
+     */
     private fun calculateTodayAndMonthSums(expenses: List<Expense>): Pair<Double, Double> {
         val today = LocalDate.now()
         val currentMonth = YearMonth.from(today)
@@ -92,4 +94,14 @@ class ExpenseRepositoryImpl(private val dao: ExpenseDao) : ExpenseRepository {
     override suspend fun deleteAll() {
         dao.clearAll()
     }
+
+    override suspend fun getExpenseById(expenseId: Int): Expense? =
+        dao.getExpenseById(expenseId = expenseId)?.toExpense()
+
+    /**
+     * Удаляет трату из базы данных
+     */
+    override suspend fun deleteExpense(expense: Expense) = dao.delete(expense.toExpenseEntity())
+
+    override suspend fun updateExpense(expense: Expense) = dao.update(expense.toExpenseEntity())
 }

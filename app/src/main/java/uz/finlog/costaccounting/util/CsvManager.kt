@@ -29,7 +29,7 @@ class CsvManager(private val context: Context) {
                 Instant.ofEpochMilli(expense.date)
                     .atZone(ZoneId.systemDefault()).toLocalDate()
             )
-            writer.appendLine("${expense.id},${expense.title},${expense.amount},$dateFormatted")
+            writer.appendLine("${expense.id},${expense.title},${expense.comment},${expense.amount},$dateFormatted")
         }
         writer.flush()
         writer.close()
@@ -48,12 +48,13 @@ class CsvManager(private val context: Context) {
 
             for (line in lines.drop(1)) {
                 val parts = line.split(",")
-                if (parts.size >= 4) {
+                if (parts.size >= 5) {
                     val id = parts[0].trim().toIntOrNull() ?: continue
                     val title = parts[1].trim()
-                    val amountStr = parts[2].trim().replace(",", ".")
+                    val comment = parts[2].trim()
+                    val amountStr = parts[3].trim().replace(",", ".")
                     val amount = amountStr.toDoubleOrNull() ?: continue
-                    val dateStr = parts[3].trim()
+                    val dateStr = parts[4].trim()
 
                     val date = try {
                         dateFormat.parse(dateStr)?.time ?: continue
@@ -61,7 +62,7 @@ class CsvManager(private val context: Context) {
                         continue
                     }
 
-                    expenses.add(Expense(id, title, amount, date))
+                    expenses.add(Expense(id, title, comment, amount, date))
                 }
             }
 

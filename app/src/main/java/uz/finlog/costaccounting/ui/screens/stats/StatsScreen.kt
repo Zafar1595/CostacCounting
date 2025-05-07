@@ -65,7 +65,7 @@ fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
         ) {
             stats.forEach {
                 Text(
-                    "${it.text}: ${it.transactionAmount} $selectedCurrency",
+                    "${it.text}: ${String.format("%.2f", it.transactionAmount)} $selectedCurrency",
                     style = MaterialTheme.typography.bodyLarge,
                     modifier = Modifier.padding(start = 8.dp, end = 8.dp, top = 8.dp)
                 )
