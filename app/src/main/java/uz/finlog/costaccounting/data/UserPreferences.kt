@@ -13,8 +13,8 @@ class UserPreferences(context: Context) {
     }
 
     fun getCurrency(): Pair<String, String> {
-        val symbol = prefs.getString(KEY_CURRENCY_SYMBOL, "") ?: ""
-        val name = prefs.getString(KEY_CURRENCY_NAME, "") ?: ""
+        val symbol = prefs.getString(KEY_CURRENCY_SYMBOL, "$") ?: "$"
+        val name = prefs.getString(KEY_CURRENCY_NAME, "Доллар США") ?: "Доллар США"
         return Pair(symbol, name)
     }
 

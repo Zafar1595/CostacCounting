@@ -4,6 +4,7 @@ import android.util.Log
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import uz.finlog.costaccounting.data.dao.ExpenseDao
+import uz.finlog.costaccounting.data.entity.ExpenseEntity
 import uz.finlog.costaccounting.data.entity.toExpense
 import uz.finlog.costaccounting.data.entity.toExpenseEntity
 import uz.finlog.costaccounting.domain.ExpenseRepository
@@ -82,5 +83,13 @@ class ExpenseRepositoryImpl(private val dao: ExpenseDao) : ExpenseRepository {
 
     override suspend fun insert(expense: Expense) {
         dao.insert(expense.toExpenseEntity())
+    }
+
+    override suspend fun insertAll(expenses: List<Expense>) {
+        dao.insertAll(expenses.map { it.toExpenseEntity() })
+    }
+
+    override suspend fun deleteAll() {
+        dao.clearAll()
     }
 }

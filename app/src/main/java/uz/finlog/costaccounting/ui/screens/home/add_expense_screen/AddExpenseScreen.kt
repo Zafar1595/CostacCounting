@@ -8,7 +8,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import androidx.navigation.compose.rememberNavController
 import uz.finlog.costaccounting.entity.Expense
 import uz.finlog.costaccounting.util.AppConstants.hideNavigationBar
 import java.time.Instant
@@ -32,10 +31,19 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
         .atZone(ZoneId.systemDefault())
         .toLocalDate()
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        viewModel.messageFlow.collect { message ->
+            snackbarHostState.showSnackbar(message)
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(title = { Text("Новый расход") })
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

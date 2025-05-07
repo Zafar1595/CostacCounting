@@ -13,12 +13,15 @@ import uz.finlog.costaccounting.ui.screens.home.HomeViewModel
 import uz.finlog.costaccounting.ui.screens.home.add_expense_screen.AddExpenseScreenViewModel
 import uz.finlog.costaccounting.ui.screens.settings.SettingsViewModel
 import uz.finlog.costaccounting.ui.screens.stats.StatsScreenViewModel
+import uz.finlog.costaccounting.util.CsvManager
 
 val appModule = module {
     viewModel { HomeViewModel(get()) }
     viewModel { AddExpenseScreenViewModel(get()) }
     viewModel { StatsScreenViewModel(get()) }
-    viewModel { SettingsViewModel(get()) }
+    viewModel { SettingsViewModel(get(), get(), get()) }
+
+    single { CsvManager(get()) }
 }
 
 val databaseModule = module {

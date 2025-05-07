@@ -30,6 +30,7 @@ import uz.finlog.costaccounting.ui.getDateString
 import uz.finlog.costaccounting.ui.toDate
 import uz.finlog.costaccounting.util.AppConstants.adUnitId
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
+import uz.finlog.costaccounting.util.DateUtils.toDisplayDate
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -37,7 +38,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
     viewModel.getAllexpenses()
     val expenses by viewModel.expenses.collectAsState()
     expenses.sortedBy { it.date }
-
+    val groupedExpenses = expenses.groupBy { it.date.toDisplayDate() }
     Scaffold(
         topBar = {
             TopAppBar(title = {
@@ -70,13 +71,10 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                 .padding(innerPadding)
                 .padding(horizontal = 16.dp)
         ) {
-            var lastDate: String? = null
-            items(expenses) { expense ->
-
-                if (expense.date.toDate() != lastDate) {
-                    lastDate = expense.date.toDate()
+            groupedExpenses.forEach { (date, expenseList) ->
+                item {
                     Text(
-                        text = expense.date.toDate(),
+                        text = date,
                         style = MaterialTheme.typography.titleLarge,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
@@ -85,33 +83,33 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                     )
                 }
 
-                Card(
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .fillMaxWidth(),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text(expense.title, style = MaterialTheme.typography.titleMedium)
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth(),
-                            verticalAlignment = Alignment.Bottom
-                        ) {
-                            Text(
-                                "${expense.amount} $selectedCurrency",
-                                style = MaterialTheme.typography.bodyLarge
-                            )
-                            Spacer(modifier = Modifier.weight(1f)) // отталкивает дату вправо
-
-                            Column(
-                                verticalArrangement = Arrangement.Bottom,
-                                horizontalAlignment = Alignment.End
+                items(expenseList) { expense ->
+                    Card(
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .fillMaxWidth(),
+                        elevation = CardDefaults.cardElevation(4.dp)
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
+                            Text(expense.title, style = MaterialTheme.typography.titleMedium)
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.Bottom
                             ) {
                                 Text(
-                                    text = expense.date.getDateString(),
-                                    style = MaterialTheme.typography.bodySmall
+                                    "${expense.amount} $selectedCurrency",
+                                    style = MaterialTheme.typography.bodyLarge
                                 )
+                                Spacer(modifier = Modifier.weight(1f)) // отталкивает дату вправо
+                                Column(
+                                    verticalArrangement = Arrangement.Bottom,
+                                    horizontalAlignment = Alignment.End
+                                ) {
+                                    Text(
+                                        text = expense.date.getDateString(),
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
                             }
                         }
                     }

@@ -2,20 +2,29 @@ package uz.finlog.costaccounting.ui.screens.home.add_expense_screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import uz.finlog.costaccounting.data.dao.ExpenseDao
 import uz.finlog.costaccounting.data.entity.ExpenseEntity
+import uz.finlog.costaccounting.data.entity.toExpense
 import uz.finlog.costaccounting.data.entity.toExpenseEntity
 import uz.finlog.costaccounting.domain.ExpenseRepository
 import uz.finlog.costaccounting.entity.Expense
 
 class AddExpenseScreenViewModel(private val repository: ExpenseRepository) : ViewModel(){
 
+    private val _messageFlow = MutableSharedFlow<String>()
+    val messageFlow: SharedFlow<String> = _messageFlow
+
     fun addExpense(expense: Expense) {
         viewModelScope.launch {
             repository.insert(expense)
+            _messageFlow.emit("Расход добавлен")
+
+//            repository.insertAll(getTestData().map { it.toExpense() })
         }
     }
 
