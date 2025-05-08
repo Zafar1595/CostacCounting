@@ -27,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
@@ -36,13 +38,11 @@ import com.github.mikephil.charting.data.BarEntry
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 import com.github.mikephil.charting.formatter.ValueFormatter
 import uz.finlog.costaccounting.entity.Expense
-import uz.finlog.costaccounting.util.AppConstants.russianMonths
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
 import java.time.Instant
 import java.time.YearMonth
 import java.time.ZoneId
-import java.time.format.TextStyle
-import java.util.Locale
+import uz.finlog.costaccounting.R
 
 @Composable
 fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
@@ -50,11 +50,14 @@ fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
         viewModel.getStats()
         viewModel.getExpensesForMonth(YearMonth.now())
     }
+
     val stats by viewModel.stats.collectAsState()
     val expensesByDay by viewModel.expensesByDay.collectAsState()
-    var selectedMonth = remember { mutableStateOf(YearMonth.now()) }
+    val selectedMonth = remember { mutableStateOf(YearMonth.now()) }
+    val statsTitle = stringResource(R.string.statistics)
+
     Column(modifier = Modifier.padding(16.dp)) {
-        Text("Статистика", style = MaterialTheme.typography.headlineMedium)
+        Text(statsTitle, style = MaterialTheme.typography.headlineMedium)
         Spacer(modifier = Modifier.height(16.dp))
 
         Card(
@@ -72,12 +75,17 @@ fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
                 Spacer(modifier = Modifier.height(8.dp))
             }
         }
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        MonthSelector(selected = selectedMonth.value, onMonthSelected = {
-            selectedMonth.value= it
-            viewModel.getExpensesForMonth(it)
-        })
+        MonthSelector(
+            selected = selectedMonth.value,
+            onMonthSelected = {
+                selectedMonth.value = it
+                viewModel.getExpensesForMonth(it)
+            }
+        )
+
         Spacer(modifier = Modifier.height(16.dp))
 
         StatsChart(expensesByDay)
@@ -88,6 +96,7 @@ fun StatsScreen(navController: NavController, viewModel: StatsScreenViewModel) {
 fun MonthSelector(selected: YearMonth, onMonthSelected: (YearMonth) -> Unit) {
     val months = (0..11).map { YearMonth.now().minusMonths(it.toLong()) }
     var expanded by remember { mutableStateOf(false) }
+    val russianMonths = stringArrayResource(R.array.russian_months)
 
     Box {
         Text(
@@ -114,6 +123,7 @@ fun MonthSelector(selected: YearMonth, onMonthSelected: (YearMonth) -> Unit) {
 fun StatsChart(expenses: List<Expense>) {
     val context = LocalContext.current
     val colorScheme = MaterialTheme.colorScheme
+    val chartLabel = stringResource(R.string.expenses_chart_label)
 
     AndroidView(
         factory = {
@@ -125,9 +135,9 @@ fun StatsChart(expenses: List<Expense>) {
                 description.isEnabled = false
                 setFitBars(true)
                 axisRight.isEnabled = false
-                legend.isEnabled = false // отключим легенду для чистоты
-                setScaleEnabled(false) // отключим масштабирование
-                setTouchEnabled(false) // запретить взаимодействие, если не нужно
+                legend.isEnabled = false
+                setScaleEnabled(false)
+                setTouchEnabled(false)
             }
         },
         update = { chart ->
@@ -142,7 +152,7 @@ fun StatsChart(expenses: List<Expense>) {
                 "${date.dayOfMonth}/${date.monthValue}"
             }
 
-            val dataSet = BarDataSet(entries, "Расходы").apply {
+            val dataSet = BarDataSet(entries, chartLabel).apply {
                 color = colorScheme.primary.toArgb()
                 valueTextColor = colorScheme.onBackground.toArgb()
                 valueTextSize = 12f
@@ -157,7 +167,6 @@ fun StatsChart(expenses: List<Expense>) {
 
             chart.data = barData
 
-            // Настройка оси X (даты под колоннами)
             chart.xAxis.apply {
                 valueFormatter = IndexAxisValueFormatter(labels)
                 position = XAxis.XAxisPosition.BOTTOM
@@ -168,7 +177,6 @@ fun StatsChart(expenses: List<Expense>) {
                 textSize = 10f
             }
 
-            // Настройка левой оси Y
             chart.axisLeft.apply {
                 textColor = colorScheme.onBackground.toArgb()
                 textSize = 10f

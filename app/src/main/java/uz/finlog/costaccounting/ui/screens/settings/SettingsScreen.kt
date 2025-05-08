@@ -29,12 +29,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import uz.finlog.costaccounting.R
 import uz.finlog.costaccounting.util.AppConstants.currencies
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,27 +43,23 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
     val currency by viewModel.selectedCurrency.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var showConfirmDialog by remember { mutableStateOf(false) }
-
     var showExportDialog by remember { mutableStateOf(false) }
 
-    // Выбор файла для импорта
+    val context = LocalContext.current
+
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
-            uri?.let {
-                viewModel.importExpenses(it)
-            }
+            uri?.let { viewModel.importExpenses(it) }
         }
     )
-    val context = LocalContext.current
-        // Выбор места для экспорта
+
     val exportLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.CreateDocument("text/csv"),
         onResult = { uri ->
             uri?.let {
-                val outputStream = context.contentResolver.openOutputStream(uri)
-                outputStream?.let {
-                    viewModel.exportExpenses(it)
+                context.contentResolver.openOutputStream(it)?.let { stream ->
+                    viewModel.exportExpenses(stream)
                 }
             }
         }
@@ -77,10 +73,14 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
         }
     }
 
+    val settingsTitle = stringResource(R.string.settings)
+    val currencyLabel = stringResource(R.string.currency)
+    val resetButton = stringResource(R.string.reset_all_data)
+    val exportButton = stringResource(R.string.export_csv)
+    val importButton = stringResource(R.string.import_csv)
+
     Scaffold(
-        topBar = {
-            TopAppBar(title = { Text("Настройки") })
-        },
+        topBar = { TopAppBar(title = { Text(settingsTitle) }) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(
@@ -90,7 +90,7 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-            Text(text = "Валюта", style = MaterialTheme.typography.titleMedium)
+            Text(text = currencyLabel, style = MaterialTheme.typography.titleMedium)
             Spacer(modifier = Modifier.height(8.dp))
 
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -111,12 +111,10 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
             }
 
             Button(
-                onClick = {
-                    showConfirmDialog = true
-                },
+                onClick = { showConfirmDialog = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Сбросить все данные")
+                Text(resetButton)
             }
 
             Button(
@@ -125,51 +123,42 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
                     .fillMaxWidth()
                     .padding(top = 24.dp)
             ) {
-                Text("Экспорт в CSV")
+                Text(exportButton)
             }
 
             Button(
                 onClick = {
                     filePickerLauncher.launch(
-                        arrayOf(
-                            "text/comma-separated-values",
-                            "text/csv",
-                            "application/csv"
-                        )
+                        arrayOf("text/comma-separated-values", "text/csv", "application/csv")
                     )
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Импортировать из CSV")
+                Text(importButton)
             }
-
         }
     }
 
-    if (showConfirmDialog)
+    if (showConfirmDialog) {
         ConfirmDialog(
             onConfirm = {
                 viewModel.clearData()
                 showConfirmDialog = false
             },
-            onDismiss = {
-                showConfirmDialog = false
-            },
-            onCancel = {
-                showConfirmDialog = false
+            onDismiss = { showConfirmDialog = false },
+            onCancel = { showConfirmDialog = false }
+        )
+    }
 
-            })
-
-    if (showExportDialog)
+    if (showExportDialog) {
         ExportDialog(
             onSuccess = {
                 exportLauncher.launch("expenses_export.csv")
                 showExportDialog = false
-
-            }, onDismiss = {
-                showExportDialog = false
-            }
+            },
+            onDismiss = { showExportDialog = false }
         )
+    }
 }
 
 @Composable
@@ -178,26 +167,23 @@ private fun ExportDialog(onSuccess: () -> Unit, onDismiss: () -> Unit) {
         onDismissRequest = onDismiss,
         confirmButton = {
             TextButton(onClick = onSuccess) {
-                Text("Экспортировать")
+                Text(stringResource(R.string.export))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Отмена")
+                Text(stringResource(R.string.cancel))
             }
         },
-        title = { Text("Подтвердите экспорт") },
-        text = {
-            Text("Данные будут экспортированы в формате CSV в папку \"Загрузки\" (Downloads). Вы уверены?")
-        }
+        title = { Text(stringResource(R.string.confirm_export)) },
+        text = { Text(stringResource(R.string.export_message)) }
     )
-
 }
 
 @Composable
 fun ConfirmDialog(
-    title: String = "Подтверждение",
-    message: String = "Вы уверены?",
+    title: String = stringResource(R.string.confirmation),
+    message: String = stringResource(R.string.are_you_sure),
     onConfirm: () -> Unit,
     onDismiss: () -> Unit,
     onCancel: () -> Unit
@@ -208,12 +194,12 @@ fun ConfirmDialog(
         text = { Text(text = message) },
         confirmButton = {
             TextButton(onClick = onConfirm) {
-                Text("Да")
+                Text(stringResource(R.string.yes))
             }
         },
         dismissButton = {
             TextButton(onClick = onCancel) {
-                Text("Нет")
+                Text(stringResource(R.string.no))
             }
         }
     )

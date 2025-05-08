@@ -12,12 +12,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import uz.finlog.costaccounting.ui.screens.home.detail.DetailViewModel
 import java.text.SimpleDateFormat
 import java.util.*
+import uz.finlog.costaccounting.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,6 +34,15 @@ fun EditExpenseScreen(
     var comment by remember { mutableStateOf("") }
     var dateMillis by remember { mutableStateOf(0L) }
 
+    val context = LocalContext.current
+    val backText = stringResource(R.string.back)
+    val editTitle = stringResource(R.string.edit_expense_title)
+    val labelTitle = stringResource(R.string.title)
+    val labelAmount = stringResource(R.string.amount)
+    val labelComment = stringResource(R.string.comment)
+    val labelDate = stringResource(R.string.date)
+    val saveText = stringResource(R.string.save)
+
     LaunchedEffect(expenseId) {
         viewModel.loadExpense(expenseId)
     }
@@ -45,10 +56,10 @@ fun EditExpenseScreen(
         }
     }
 
-    val context = LocalContext.current
     val calendar = remember(dateMillis) {
         Calendar.getInstance().apply { time = Date(dateMillis) }
     }
+
     val formattedDate = remember(dateMillis) {
         SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(dateMillis))
     }
@@ -56,10 +67,10 @@ fun EditExpenseScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Редактирование") },
+                title = { Text(editTitle) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Назад")
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = backText)
                     }
                 }
             )
@@ -76,14 +87,14 @@ fun EditExpenseScreen(
                 OutlinedTextField(
                     value = title,
                     onValueChange = { title = it },
-                    label = { Text("Название") },
+                    label = { Text(labelTitle) },
                     modifier = Modifier.fillMaxWidth()
                 )
 
                 OutlinedTextField(
                     value = amount,
                     onValueChange = { amount = it },
-                    label = { Text("Сумма") },
+                    label = { Text(labelAmount) },
                     modifier = Modifier.fillMaxWidth(),
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
                 )
@@ -91,7 +102,7 @@ fun EditExpenseScreen(
                 OutlinedTextField(
                     value = comment,
                     onValueChange = { comment = it },
-                    label = { Text("Комментарий") },
+                    label = { Text(labelComment) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 100.dp),
@@ -121,7 +132,7 @@ fun EditExpenseScreen(
                 ) {
                     Column(modifier = Modifier.padding(16.dp)) {
                         Text(
-                            text = "Дата",
+                            text = labelDate,
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -145,7 +156,7 @@ fun EditExpenseScreen(
                     },
                     modifier = Modifier.align(Alignment.End)
                 ) {
-                    Text("Сохранить")
+                    Text(saveText)
                 }
             }
         } else {

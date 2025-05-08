@@ -37,11 +37,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavController
 import uz.finlog.costaccounting.ui.ScreenRoute
-import uz.finlog.costaccounting.ui.getDateString
-import uz.finlog.costaccounting.ui.toDate
+import uz.finlog.costaccounting.util.getDateString
+import uz.finlog.costaccounting.util.toDate
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
+import uz.finlog.costaccounting.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -53,6 +55,19 @@ fun DetailScreen(
     val expense by viewModel.selectedExpense.collectAsState()
     var showDeleteDialog by remember { mutableStateOf(false) }
 
+    val titleText = stringResource(R.string.expense_detail_title)
+    val backText = stringResource(R.string.back)
+    val editText = stringResource(R.string.edit)
+    val deleteText = stringResource(R.string.delete)
+    val labelTitle = stringResource(R.string.title)
+    val labelAmount = stringResource(R.string.amount)
+    val labelDate = stringResource(R.string.date)
+    val labelComment = stringResource(R.string.comment)
+    val noComment = stringResource(R.string.no_comment)
+    val deleteDialogTitle = stringResource(R.string.delete_expense_title)
+    val deleteDialogText = stringResource(R.string.delete_expense_text)
+    val cancelText = stringResource(R.string.cancel)
+
     LaunchedEffect(expenseId) {
         viewModel.loadExpense(expenseId)
     }
@@ -60,33 +75,30 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Детали расхода") },
+                title = { Text(titleText) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = "Назад")
+                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = backText)
                     }
                 },
                 actions = {
                     Row {
                         IconButton(onClick = {
                             expense?.let {
-                                navController.navigate(ScreenRoute.Edit.routeWithId(expense!!.id)) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
-                                    }
+                                navController.navigate(ScreenRoute.Edit.routeWithId(it.id)) {
+                                    popUpTo(navController.graph.startDestinationId) { saveState = true }
                                     launchSingleTop = true
                                     restoreState = true
                                 }
                             }
                         }) {
-                            Icon(Icons.Default.Edit, contentDescription = "Редактирвать")
+                            Icon(Icons.Default.Edit, contentDescription = editText)
                         }
 
                         IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = "Удалить")
+                            Icon(Icons.Default.Delete, contentDescription = deleteText)
                         }
                     }
-
                 }
             )
         }
@@ -105,7 +117,7 @@ fun DetailScreen(
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text("Название", style = MaterialTheme.typography.labelMedium)
+                        Text(labelTitle, style = MaterialTheme.typography.labelMedium)
                         Text(exp.title, style = MaterialTheme.typography.titleLarge)
                     }
                 }
@@ -116,7 +128,7 @@ fun DetailScreen(
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text("Сумма", style = MaterialTheme.typography.labelMedium)
+                        Text(labelAmount, style = MaterialTheme.typography.labelMedium)
                         Text("${exp.amount} $selectedCurrency", style = MaterialTheme.typography.titleLarge)
                     }
                 }
@@ -127,7 +139,7 @@ fun DetailScreen(
                     elevation = CardDefaults.cardElevation(4.dp)
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text("Дата", style = MaterialTheme.typography.labelMedium)
+                        Text(labelDate, style = MaterialTheme.typography.labelMedium)
                         Text("${exp.date.getDateString()} ${exp.date.toDate()}", style = MaterialTheme.typography.titleLarge)
                     }
                 }
@@ -140,15 +152,15 @@ fun DetailScreen(
                     Column(modifier = Modifier
                         .padding(20.dp)
                     ) {
-                        Text("Комментарий", style = MaterialTheme.typography.labelMedium)
+                        Text(labelComment, style = MaterialTheme.typography.labelMedium)
                         Box(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .heightIn(min = 60.dp, max = 200.dp) // ограничим высоту
+                                .heightIn(min = 60.dp, max = 200.dp)
                                 .verticalScroll(rememberScrollState())
                         ) {
                             Text(
-                                text = if (exp.comment.isNotBlank()) exp.comment else "Нет комментария",
+                                text = if (exp.comment.isNotBlank()) exp.comment else noComment,
                                 style = MaterialTheme.typography.titleLarge
                             )
                         }
@@ -162,19 +174,19 @@ fun DetailScreen(
         if (showDeleteDialog) {
             AlertDialog(
                 onDismissRequest = { showDeleteDialog = false },
-                title = { Text("Удалить расход?") },
-                text = { Text("Вы действительно хотите удалить этот расход?") },
+                title = { Text(deleteDialogTitle) },
+                text = { Text(deleteDialogText) },
                 confirmButton = {
                     TextButton(onClick = {
                         viewModel.deleteExpense(expense!!)
                         navController.popBackStack()
                     }) {
-                        Text("Удалить")
+                        Text(deleteText)
                     }
                 },
                 dismissButton = {
                     TextButton(onClick = { showDeleteDialog = false }) {
-                        Text("Отмена")
+                        Text(cancelText)
                     }
                 }
             )

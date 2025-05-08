@@ -1,3 +1,63 @@
 <resources>
-    <string name="app_name">CostAccounting</string>
+    <string name="app_name">Учёт расходов</string>
+
+
+    <string name="add_expense_title">Новый расход</string>
+    <string name="label_title">Название</string>
+    <string name="label_amount">Сумма</string>
+    <string name="label_comment">Комментарий</string>
+    <string name="label_date">Дата: %1$s</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Отмена</string>
+    <string name="save">Сохранить</string>
+    <string name="error_fill_fields">Введите название и сумму</string>
+    <string name="edit_expense_title">Редактирование</string>
+    <string name="back">Назад</string>
+    <string name="title">Название</string>
+    <string name="amount">Сумма</string>
+    <string name="comment">Комментарий</string>
+    <string name="date">Дата</string>
+    <string name="loading">Загрузка...</string>
+    <string name="expense_detail_title">Детали расхода</string>
+    <string name="edit">Редактировать</string>
+    <string name="delete">Удалить</string>
+    <string name="no_comment">Нет комментария</string>
+    <string name="delete_expense_title">Удалить расход?</string>
+    <string name="delete_expense_text">Вы действительно хотите удалить этот расход?</string>
+    <string name="expenses">Расходы</string>
+    <string name="total_all_time">За все время %1$s %2$s</string>
+    <string name="search_by_title">Поиск по названию</string>
+    <string name="settings">Настройки</string>
+    <string name="currency">Валюта</string>
+    <string name="reset_all_data">Сбросить все данные</string>
+    <string name="export_csv">Экспорт в CSV</string>
+    <string name="import_csv">Импортировать из CSV</string>
+    <string name="confirm_export">Подтвердите экспорт</string>
+    <string name="export_message">Данные будут экспортированы в формате CSV в папку &quot;Загрузки&quot; (Downloads). Вы уверены?</string>
+    <string name="export">Экспортировать</string>
+
+    <string name="confirmation">Подтверждение</string>
+    <string name="are_you_sure">Вы уверены?</string>
+    <string name="yes">Да</string>
+    <string name="no">Нет</string>
+
+    <!-- StatsScreen -->
+    <string name="statistics">Статистика</string>
+    <string name="expenses_chart_label">Расходы</string>
+
+    <!-- Russian month names (если нужно для строк) -->
+    <string-array name="russian_months">
+        <item>Январь</item>
+        <item>Февраль</item>
+        <item>Март</item>
+        <item>Апрель</item>
+        <item>Май</item>
+        <item>Июнь</item>
+        <item>Июль</item>
+        <item>Август</item>
+        <item>Сентябрь</item>
+        <item>Октябрь</item>
+        <item>Ноябрь</item>
+        <item>Декабрь</item>
+    </string-array>
 </resources>

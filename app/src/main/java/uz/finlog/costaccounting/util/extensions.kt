@@ -1,4 +1,4 @@
-package uz.finlog.costaccounting.ui
+package uz.finlog.costaccounting.util
 
 import android.icu.text.SimpleDateFormat
 import java.util.Date

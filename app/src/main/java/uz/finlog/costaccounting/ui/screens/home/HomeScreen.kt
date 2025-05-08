@@ -24,13 +24,15 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import uz.finlog.costaccounting.ui.ScreenRoute
-import uz.finlog.costaccounting.ui.getDateString
+import uz.finlog.costaccounting.util.getDateString
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
 import uz.finlog.costaccounting.util.DateUtils.toDisplayDate
+import uz.finlog.costaccounting.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -45,22 +47,27 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
         .sortedByDescending { it.date }
         .groupBy { it.date.toDisplayDate() }
 
+    val title = stringResource(R.string.expenses)
+    val searchHint = stringResource(R.string.search_by_title)
+    val totalFilteredSum = String.format("%.2f", expenses.sumOf { it.amount })
+    val totalAllTimeText =
+        stringResource(R.string.total_all_time, totalFilteredSum, selectedCurrency)
+
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                val totalFilteredSum = String.format("%.2f", expenses.sumOf { it.amount })
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Расходы",
+                        text = title,
                         style = MaterialTheme.typography.headlineMedium,
                         modifier = Modifier.padding(bottom = 16.dp),
                         textAlign = TextAlign.Start
                     )
                     Text(
-                        "За все время $totalFilteredSum $selectedCurrency",
+                        totalAllTimeText,
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier
                             .padding(bottom = 16.dp, end = 16.dp)
@@ -71,14 +78,15 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
             })
         }
     ) { innerPadding ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(innerPadding)
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
         ) {
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { viewModel.onSearchQueryChanged(it) },
-                label = { Text("Поиск по названию") },
+                label = { Text(searchHint) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp),

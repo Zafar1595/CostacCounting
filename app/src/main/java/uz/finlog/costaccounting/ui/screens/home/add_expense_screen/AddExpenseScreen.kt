@@ -5,9 +5,11 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import uz.finlog.costaccounting.R
 import uz.finlog.costaccounting.entity.Expense
 import java.time.Instant
 import java.time.ZoneId
@@ -37,10 +39,9 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
             snackbarHostState.showSnackbar(message)
         }
     }
-
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text("Новый расход") })
+            TopAppBar(title = { Text(stringResource(id = R.string.add_expense_title)) })
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -54,14 +55,14 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
-                label = { Text("Название") },
+                label = { Text(stringResource(id = R.string.label_title)) },
                 modifier = Modifier.fillMaxWidth()
             )
             Spacer(modifier = Modifier.height(12.dp))
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
-                label = { Text("Сумма") },
+                label = { Text(stringResource(id = R.string.label_amount)) },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
             )
@@ -70,7 +71,7 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
             OutlinedTextField(
                 value = comment,
                 onValueChange = { comment = it },
-                label = { Text("Комментарий") },
+                label = { Text(stringResource(id = R.string.label_comment)) },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(120.dp), // можно настроить под нужную высоту
@@ -83,7 +84,7 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                 onClick = { showDatePicker = true },
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Дата: ${formatter.format(localDate)}")
+                Text(stringResource(R.string.label_date, formatter.format(localDate)))
             }
 
             if (showDatePicker) {
@@ -94,12 +95,12 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                             selectedDateMillis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
                             showDatePicker = false
                         }) {
-                            Text("OK")
+                            Text(stringResource(id = R.string.ok))
                         }
                     },
                     dismissButton = {
                         TextButton(onClick = { showDatePicker = false }) {
-                            Text("Отмена")
+                            Text(stringResource(id = R.string.cancel))
                         }
                     }
                 ) {
@@ -109,6 +110,7 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
 
             Spacer(modifier = Modifier.height(24.dp))
             Row {
+                val errorFillFields = stringResource(id = R.string.error_fill_fields)
                 Button(
                     onClick = {
                         val amt = amount.toDoubleOrNull()
@@ -124,19 +126,19 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                             )
                             navController.popBackStack()
                         } else {
-                            viewModel.showMessage("Введите название и сумму")
+                            viewModel.showMessage(message = errorFillFields)
                         }
                     },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Сохранить")
+                    Text(stringResource(id = R.string.save))
                 }
                 Spacer(modifier = Modifier.width(8.dp))
                 OutlinedButton(
                     onClick = { navController.popBackStack() },
                     modifier = Modifier.weight(1f)
                 ) {
-                    Text("Отмена")
+                    Text(stringResource(id = R.string.cancel))
                 }
             }
         }

@@ -25,11 +25,6 @@ object AppConstants {
         "A$" to "Австралийский доллар"
     )
 
-    val russianMonths = listOf(
-        "Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
-        "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
-    )
-
     var selectedCurrency: String = ""
     fun setSelectedCurrency(currency: Pair<String, String>) {
         selectedCurrency = currency.first
