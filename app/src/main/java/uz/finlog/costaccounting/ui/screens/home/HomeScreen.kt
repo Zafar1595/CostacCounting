@@ -14,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -37,13 +38,17 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
     LaunchedEffect(Unit) {
         viewModel.getAllexpenses()
     }
-    val expenses by viewModel.expenses.collectAsState()
-    expenses.sortedBy { it.date }
-    val groupedExpenses = expenses.groupBy { it.date.toDisplayDate() }
+
+    val searchQuery by viewModel.searchQuery.collectAsState()
+    val expenses by viewModel.filteredExpenses.collectAsState()
+    val groupedExpenses = expenses
+        .sortedByDescending { it.date }
+        .groupBy { it.date.toDisplayDate() }
+
     Scaffold(
         topBar = {
             TopAppBar(title = {
-                val totalSum = String.format("%.2f", expenses.sumOf { it.amount })
+                val totalFilteredSum = String.format("%.2f", expenses.sumOf { it.amount })
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically
@@ -55,7 +60,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                         textAlign = TextAlign.Start
                     )
                     Text(
-                        "За все время $totalSum $selectedCurrency",
+                        "За все время $totalFilteredSum $selectedCurrency",
                         style = MaterialTheme.typography.labelLarge,
                         modifier = Modifier
                             .padding(bottom = 16.dp, end = 16.dp)
@@ -66,59 +71,73 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
             })
         }
     ) { innerPadding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .padding(horizontal = 16.dp)
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .padding(innerPadding)
         ) {
-            groupedExpenses.forEach { (date, expenseList) ->
-                item {
-                    Text(
-                        text = date,
-                        style = MaterialTheme.typography.titleLarge,
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .fillMaxWidth(),
-                        textAlign = TextAlign.End
-                    )
-                }
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { viewModel.onSearchQueryChanged(it) },
+                label = { Text("Поиск по названию") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                singleLine = true
+            )
 
-                items(expenseList) { expense ->
-                    Card(
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .fillMaxWidth()
-                            .clickable(onClick = {
-                                navController.navigate(ScreenRoute.Detail.routeWithId(expense.id)) {
-                                    popUpTo(navController.graph.startDestinationId) {
-                                        saveState = true
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            ) {
+                groupedExpenses.forEach { (date, expenseList) ->
+                    item {
+                        Text(
+                            text = date,
+                            style = MaterialTheme.typography.titleLarge,
+                            modifier = Modifier
+                                .padding(vertical = 8.dp)
+                                .fillMaxWidth(),
+                            textAlign = TextAlign.End
+                        )
+                    }
+
+                    items(expenseList) { expense ->
+                        Card(
+                            modifier = Modifier
+                                .padding(vertical = 8.dp)
+                                .fillMaxWidth()
+                                .clickable {
+                                    navController.navigate(ScreenRoute.Detail.routeWithId(expense.id)) {
+                                        popUpTo(navController.graph.startDestinationId) {
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
                                     }
-                                    launchSingleTop = true
-                                    restoreState = true
-                                }
-                            }),
-                        elevation = CardDefaults.cardElevation(4.dp)
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(expense.title, style = MaterialTheme.typography.titleMedium)
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                verticalAlignment = Alignment.Bottom
-                            ) {
-                                Text(
-                                    "${expense.amount} $selectedCurrency",
-                                    style = MaterialTheme.typography.bodyLarge
-                                )
-                                Spacer(modifier = Modifier.weight(1f)) // отталкивает дату вправо
-                                Column(
-                                    verticalArrangement = Arrangement.Bottom,
-                                    horizontalAlignment = Alignment.End
+                                },
+                            elevation = CardDefaults.cardElevation(4.dp)
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(expense.title, style = MaterialTheme.typography.titleMedium)
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.Bottom
                                 ) {
                                     Text(
-                                        text = expense.date.getDateString(),
-                                        style = MaterialTheme.typography.bodySmall
+                                        "${expense.amount} $selectedCurrency",
+                                        style = MaterialTheme.typography.bodyLarge
                                     )
+                                    Spacer(modifier = Modifier.weight(1f))
+                                    Column(
+                                        verticalArrangement = Arrangement.Bottom,
+                                        horizontalAlignment = Alignment.End
+                                    ) {
+                                        Text(
+                                            text = expense.date.getDateString(),
+                                            style = MaterialTheme.typography.bodySmall
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -127,6 +146,4 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
             }
         }
     }
-
-
 }
