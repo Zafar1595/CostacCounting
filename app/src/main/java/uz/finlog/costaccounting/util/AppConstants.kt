@@ -30,5 +30,6 @@ object AppConstants {
         selectedCurrency = currency.first
     }
 
-    val adUnitId = "ca-app-pub-3940256099942544/6300978111"
+    val adUnitId = "ca-app-pub-5869958442327321/6279705954" //Тестовый "ca-app-pub-3940256099942544/6300978111" (Статичный баннер)
+    val adUnitId2 = "ca-app-pub-5869958442327321/5693366682" // Тестовый "ca-app-pub-3940256099942544/1033173712" (Межстраничный)
 }

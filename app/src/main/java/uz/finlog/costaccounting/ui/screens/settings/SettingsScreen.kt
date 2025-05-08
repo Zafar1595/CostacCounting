@@ -1,5 +1,7 @@
 package uz.finlog.costaccounting.ui.screens.settings
 
+import android.app.Activity
+import android.content.Context
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -34,7 +36,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.google.android.gms.ads.AdError
+import com.google.android.gms.ads.AdRequest
+import com.google.android.gms.ads.FullScreenContentCallback
+import com.google.android.gms.ads.LoadAdError
+import com.google.android.gms.ads.interstitial.InterstitialAd
+import com.google.android.gms.ads.interstitial.InterstitialAdLoadCallback
 import uz.finlog.costaccounting.R
+import uz.finlog.costaccounting.util.AppConstants.adUnitId2
 import uz.finlog.costaccounting.util.AppConstants.currencies
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -118,7 +127,12 @@ fun SettingsScreen(viewModel: SettingsViewModel) {
             }
 
             Button(
-                onClick = { showExportDialog = true },
+                onClick = {
+                    loadInterstitial(context) // сначала загружаем (можно в init)
+                    showAdThenExport(context) {
+                        showExportDialog = true
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 24.dp)
@@ -203,4 +217,40 @@ fun ConfirmDialog(
             }
         }
     )
+}
+
+private var mInterstitialAd: InterstitialAd? = null
+
+fun loadInterstitial(context: Context) {
+    val adRequest = AdRequest.Builder().build()
+    InterstitialAd.load(
+        context,
+        adUnitId2, // Твой ID рекламного блока
+        adRequest,
+        object : InterstitialAdLoadCallback() {
+            override fun onAdLoaded(ad: InterstitialAd) {
+                mInterstitialAd = ad
+            }
+
+            override fun onAdFailedToLoad(adError: LoadAdError) {
+                mInterstitialAd = null
+            }
+        })
+}
+
+fun showAdThenExport(context: Context, onExport: () -> Unit) {
+    if (mInterstitialAd != null) {
+        mInterstitialAd?.fullScreenContentCallback = object : FullScreenContentCallback() {
+            override fun onAdDismissedFullScreenContent() {
+                onExport()
+            }
+
+            override fun onAdFailedToShowFullScreenContent(adError: AdError) {
+                onExport()
+            }
+        }
+        mInterstitialAd?.show(context as Activity)
+    } else {
+        onExport()
+    }
 }
