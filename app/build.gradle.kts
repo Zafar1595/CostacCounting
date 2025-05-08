@@ -51,6 +51,10 @@ dependencies {
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.jupiter)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
+    testImplementation(libs.junit.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -75,4 +79,11 @@ dependencies {
     implementation(libs.mpandroidchart)
 
     implementation(libs.play.services.ads)
+
+    // Юнит-тестирование
+    testImplementation(libs.junit)
+    testImplementation(libs.mockk) // мок библиотека
+    testImplementation(libs.kotlinx.coroutines.test)
+    testImplementation(libs.androidx.core.testing) // для LiveData
+    testImplementation(kotlin("test"))
 }
