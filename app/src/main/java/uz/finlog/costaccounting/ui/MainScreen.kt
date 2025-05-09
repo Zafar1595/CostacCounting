@@ -67,6 +67,7 @@ fun MainScreen() {
         bottomBar = {
             Column(modifier = Modifier.fillMaxWidth()) {
                 AdaptiveAdBanner(adUnitId = adUnitId)
+                Spacer(modifier = Modifier.padding(1.dp))
                 val currentBackStackEntry = navController.currentBackStackEntryAsState()
                 if (currentBackStackEntry.value?.destination?.route != ScreenRoute.Add.route) {
                     NavigationBar {
