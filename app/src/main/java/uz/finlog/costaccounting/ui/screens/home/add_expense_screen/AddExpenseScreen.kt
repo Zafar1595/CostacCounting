@@ -1,9 +1,16 @@
 package uz.finlog.costaccounting.ui.screens.home.add_expense_screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -39,34 +46,69 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
             snackbarHostState.showSnackbar(message)
         }
     }
+
     Scaffold(
         topBar = {
-            TopAppBar(title = { Text(stringResource(id = R.string.add_expense_title)) })
+            Surface(
+                tonalElevation = 4.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shadowElevation = 6.dp,
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp)
+                ) {
+                    IconButton(
+                        onClick = { navController.popBackStack() },
+                        modifier = Modifier.align(Alignment.CenterStart)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = "Назад",
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
+                    }
+
+                    Text(
+                        text = stringResource(id = R.string.add_expense_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            }
         },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = { SnackbarHost(snackbarHostState) },
+        containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(16.dp)
+                .padding(horizontal = 16.dp).padding(top = 16.dp)
                 .fillMaxSize(),
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
                 value = title,
                 onValueChange = { title = it },
                 label = { Text(stringResource(id = R.string.label_title)) },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                singleLine = true
             )
-            Spacer(modifier = Modifier.height(12.dp))
+
             OutlinedTextField(
                 value = amount,
                 onValueChange = { amount = it },
                 label = { Text(stringResource(id = R.string.label_amount)) },
                 modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                shape = RoundedCornerShape(16.dp),
+                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                singleLine = true
             )
-            Spacer(modifier = Modifier.height(12.dp))
 
             OutlinedTextField(
                 value = comment,
@@ -74,15 +116,18 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                 label = { Text(stringResource(id = R.string.label_comment)) },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(120.dp), // можно настроить под нужную высоту
+                    .height(120.dp),
+                shape = RoundedCornerShape(16.dp),
                 singleLine = false,
                 maxLines = 5
             )
-            Spacer(modifier = Modifier.height(12.dp))
-            // Дата
+
             OutlinedButton(
                 onClick = { showDatePicker = true },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Text(stringResource(R.string.label_date, formatter.format(localDate)))
             }
@@ -92,7 +137,8 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                     onDismissRequest = { showDatePicker = false },
                     confirmButton = {
                         TextButton(onClick = {
-                            selectedDateMillis = datePickerState.selectedDateMillis ?: System.currentTimeMillis()
+                            selectedDateMillis = datePickerState.selectedDateMillis
+                                ?: System.currentTimeMillis()
                             showDatePicker = false
                         }) {
                             Text(stringResource(id = R.string.ok))
@@ -108,9 +154,11 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
-            Row {
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val errorFillFields = stringResource(id = R.string.error_fill_fields)
+
                 Button(
                     onClick = {
                         val amt = amount.toDoubleOrNull()
@@ -129,14 +177,16 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                             viewModel.showMessage(message = errorFillFields)
                         }
                     },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(stringResource(id = R.string.save))
                 }
-                Spacer(modifier = Modifier.width(8.dp))
+
                 OutlinedButton(
                     onClick = { navController.popBackStack() },
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(stringResource(id = R.string.cancel))
                 }

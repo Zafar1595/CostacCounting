@@ -4,6 +4,7 @@ import android.app.DatePickerDialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBackIosNew
@@ -64,23 +65,56 @@ fun EditExpenseScreen(
         SimpleDateFormat("dd.MM.yyyy", Locale.getDefault()).format(Date(dateMillis))
     }
 
+    val datePickerState = remember(dateMillis) {
+        DatePickerState(
+            initialSelectedDateMillis = dateMillis,
+            yearRange = 1970..2100,
+            locale = Locale.getDefault()
+        )
+    }
+    var showDatePicker by remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(editTitle) },
-                navigationIcon = {
+            Surface(
+                tonalElevation = 4.dp,
+                shadowElevation = 6.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = backText)
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = backText,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
+
+                    Spacer(modifier = Modifier.width(8.dp))
+
+                    Text(
+                        text = editTitle,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
                 }
-            )
-        }
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         if (expense != null) {
             Column(
                 modifier = Modifier
                     .padding(padding)
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp, vertical = 24.dp)
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -88,7 +122,9 @@ fun EditExpenseScreen(
                     value = title,
                     onValueChange = { title = it },
                     label = { Text(labelTitle) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true
                 )
 
                 OutlinedTextField(
@@ -96,7 +132,9 @@ fun EditExpenseScreen(
                     onValueChange = { amount = it },
                     label = { Text(labelAmount) },
                     modifier = Modifier.fillMaxWidth(),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true
                 )
 
                 OutlinedTextField(
@@ -106,31 +144,18 @@ fun EditExpenseScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(min = 100.dp),
-                    maxLines = 5
+                    maxLines = 5,
+                    shape = RoundedCornerShape(16.dp)
                 )
 
-                val shape = MaterialTheme.shapes.medium
-
-                Surface(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable {
-                            DatePickerDialog(
-                                context,
-                                { _, year, month, dayOfMonth ->
-                                    calendar.set(year, month, dayOfMonth)
-                                    dateMillis = calendar.timeInMillis
-                                },
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH),
-                                calendar.get(Calendar.DAY_OF_MONTH)
-                            ).show()
-                        },
-                    tonalElevation = 2.dp,
-                    shape = shape,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally // Центровка текста
+                    ) {
                         Text(
                             text = labelDate,
                             style = MaterialTheme.typography.labelMedium,
@@ -138,8 +163,30 @@ fun EditExpenseScreen(
                         )
                         Text(
                             text = formattedDate,
-                            style = MaterialTheme.typography.bodyLarge
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = MaterialTheme.colorScheme.onSurface
                         )
+                    }
+                }
+
+                if (showDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                dateMillis = datePickerState.selectedDateMillis ?: dateMillis
+                                showDatePicker = false
+                            }) {
+                                Text(stringResource(R.string.ok))
+                            }
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDatePicker = false }) {
+                                Text(stringResource(R.string.cancel))
+                            }
+                        }
+                    ) {
+                        DatePicker(state = datePickerState)
                     }
                 }
 
@@ -154,7 +201,10 @@ fun EditExpenseScreen(
                         viewModel.updateExpense(updatedExpense)
                         navController.popBackStack()
                     },
-                    modifier = Modifier.align(Alignment.End)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = RoundedCornerShape(16.dp)
                 ) {
                     Text(saveText)
                 }

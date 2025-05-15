@@ -178,7 +178,7 @@ fun AdaptiveAdBanner(adUnitId: String) {
             .height(adSize.height.toDp()),
         factory = {
             AdView(context).apply {
-                setAdSize(adSize)
+                setAdSize(AdSize.MEDIUM_RECTANGLE)
                 setAdUnitId(adUnitId)
                 loadAd(AdRequest.Builder().build())
             }

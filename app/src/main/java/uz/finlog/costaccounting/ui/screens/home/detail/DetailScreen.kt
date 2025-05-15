@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -74,14 +75,34 @@ fun DetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(titleText) },
-                navigationIcon = {
+            Surface(
+                tonalElevation = 4.dp,
+                shadowElevation = 6.dp,
+                color = MaterialTheme.colorScheme.surfaceVariant,
+                shape = RoundedCornerShape(bottomStart = 24.dp, bottomEnd = 24.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 8.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBackIosNew, contentDescription = backText)
+                        Icon(
+                            imageVector = Icons.Default.ArrowBackIosNew,
+                            contentDescription = backText,
+                            tint = MaterialTheme.colorScheme.onSurface
+                        )
                     }
-                },
-                actions = {
+
+                    Text(
+                        text = titleText,
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+
                     Row {
                         IconButton(onClick = {
                             expense?.let {
@@ -92,16 +113,25 @@ fun DetailScreen(
                                 }
                             }
                         }) {
-                            Icon(Icons.Default.Edit, contentDescription = editText)
+                            Icon(
+                                Icons.Default.Edit,
+                                contentDescription = editText,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
 
                         IconButton(onClick = { showDeleteDialog = true }) {
-                            Icon(Icons.Default.Delete, contentDescription = deleteText)
+                            Icon(
+                                Icons.Default.Delete,
+                                contentDescription = deleteText,
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
                         }
                     }
                 }
-            )
-        }
+            }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         expense?.let { exp ->
             Column(
@@ -111,47 +141,18 @@ fun DetailScreen(
                     .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Text(labelTitle, style = MaterialTheme.typography.labelMedium)
-                        Text(exp.title, style = MaterialTheme.typography.titleLarge)
-                    }
-                }
+                InfoCard(labelTitle, exp.title)
+                InfoCard(labelAmount, "${exp.amount} $selectedCurrency")
+                InfoCard(labelDate, "${exp.date.getDateString()} ${exp.date.toDate()}")
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
+                    shape = RoundedCornerShape(20.dp),
+                    elevation = CardDefaults.cardElevation(2.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = CardDefaults.outlinedCardBorder()
                 ) {
                     Column(modifier = Modifier.padding(20.dp)) {
-                        Text(labelAmount, style = MaterialTheme.typography.labelMedium)
-                        Text("${exp.amount} $selectedCurrency", style = MaterialTheme.typography.titleLarge)
-                    }
-                }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(modifier = Modifier.padding(20.dp)) {
-                        Text(labelDate, style = MaterialTheme.typography.labelMedium)
-                        Text("${exp.date.getDateString()} ${exp.date.toDate()}", style = MaterialTheme.typography.titleLarge)
-                    }
-                }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.cardElevation(4.dp)
-                ) {
-                    Column(modifier = Modifier
-                        .padding(20.dp)
-                    ) {
                         Text(labelComment, style = MaterialTheme.typography.labelMedium)
                         Box(
                             modifier = Modifier
@@ -161,7 +162,8 @@ fun DetailScreen(
                         ) {
                             Text(
                                 text = if (exp.comment.isNotBlank()) exp.comment else noComment,
-                                style = MaterialTheme.typography.titleLarge
+                                style = MaterialTheme.typography.titleLarge,
+                                color = MaterialTheme.colorScheme.onSurface
                             )
                         }
                     }
@@ -190,6 +192,22 @@ fun DetailScreen(
                     }
                 }
             )
+        }
+    }
+}
+
+@Composable
+private fun InfoCard(label: String, value: String) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        border = CardDefaults.outlinedCardBorder()
+    ) {
+        Column(modifier = Modifier.padding(20.dp)) {
+            Text(label, style = MaterialTheme.typography.labelMedium)
+            Text(value, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
         }
     }
 }
