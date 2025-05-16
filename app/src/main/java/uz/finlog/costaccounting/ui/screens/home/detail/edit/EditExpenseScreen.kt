@@ -21,10 +21,11 @@ import uz.finlog.costaccounting.ui.screens.home.detail.DetailViewModel
 import java.text.SimpleDateFormat
 import java.util.*
 import uz.finlog.costaccounting.R
+import uz.finlog.costaccounting.entity.Category
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditExpenseScreen( // TODO редактирование категории тут и добавить категории в HomeSCreen
+fun EditExpenseScreen(
     viewModel: DetailViewModel,
     expenseId: Int,
     navController: NavController
@@ -44,11 +45,15 @@ fun EditExpenseScreen( // TODO редактирование категории �
     val labelDate = stringResource(R.string.date)
     val saveText = stringResource(R.string.save)
 
+    val categories by viewModel.categories.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf<Category?>(null) }
     LaunchedEffect(expenseId) {
         viewModel.loadExpense(expenseId)
     }
 
     LaunchedEffect(expense) {
+        selectedCategory = categories.find { it.id == expense?.categoryId }
         expense?.let {
             title = it.title
             amount = it.amount.toString()
@@ -187,6 +192,33 @@ fun EditExpenseScreen( // TODO редактирование категории �
                         }
                     ) {
                         DatePicker(state = datePickerState)
+                    }
+                }
+
+                Text(
+                    text = stringResource(R.string.category),
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { expanded = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(selectedCategory?.name ?: stringResource(R.string.no_category))
+                    }
+
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text(category.name) },
+                                onClick = {
+                                    selectedCategory = category
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
 

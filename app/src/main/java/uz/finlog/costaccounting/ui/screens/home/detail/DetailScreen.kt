@@ -68,6 +68,11 @@ fun DetailScreen(
     val deleteDialogTitle = stringResource(R.string.delete_expense_title)
     val deleteDialogText = stringResource(R.string.delete_expense_text)
     val cancelText = stringResource(R.string.cancel)
+    val labelCategory = stringResource(R.string.category)
+    val categories by viewModel.categories.collectAsState()
+    val categoryName = categories.find { it.id == expense?.categoryId }?.name
+        ?: stringResource(R.string.no_category)
+
 
     LaunchedEffect(expenseId) {
         viewModel.loadExpense(expenseId)
@@ -144,6 +149,7 @@ fun DetailScreen(
                 InfoCard(labelTitle, exp.title)
                 InfoCard(labelAmount, "${exp.amount} $selectedCurrency")
                 InfoCard(labelDate, "${exp.date.getDateString()} ${exp.date.toDate()}")
+                InfoCard(labelCategory, categoryName)
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),

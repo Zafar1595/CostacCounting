@@ -23,7 +23,7 @@ val appModule = module {
     viewModel { AddExpenseScreenViewModel(get(), get()) }
     viewModel { StatsScreenViewModel(get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get()) }
-    viewModel { DetailViewModel(get()) }
+    viewModel { DetailViewModel(get(), get()) }
 
     single { CsvManager(get()) }
 }
