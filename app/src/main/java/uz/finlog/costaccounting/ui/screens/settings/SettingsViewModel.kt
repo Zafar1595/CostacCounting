@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import uz.finlog.costaccounting.data.UserPreferences
+import uz.finlog.costaccounting.data.entity.toEntity
+import uz.finlog.costaccounting.domain.CategoryRepository
 import uz.finlog.costaccounting.domain.ExpenseRepository
 import uz.finlog.costaccounting.util.AppConstants
 import uz.finlog.costaccounting.util.AppConstants.setSelectedCurrency
@@ -20,6 +22,7 @@ import java.io.OutputStream
 class SettingsViewModel(
     private val prefs: UserPreferences,
     private val repository: ExpenseRepository,
+    private val categoryRepository: CategoryRepository,
     private val csvManager: CsvManager
 ) : ViewModel() {
 
@@ -41,33 +44,37 @@ class SettingsViewModel(
             prefs.setCurrency(Pair("$", "Доллар США"))
             _selectedCurrency.value = Pair("$", "Доллар США")
             AppConstants.selectedCurrency = "$"
+//            categoryRepository.deleteAll()
             _messageFlow.emit("Все данные удалены")
         }
     }
 
-    fun exportExpenses(outputStream: OutputStream) {
+    fun exportAll(outputStream: OutputStream) {
         viewModelScope.launch {
-            val data = repository.getAllExpenses().first() // или другой способ получить данные
-            csvManager.exportExpensesToCsvStream(outputStream, data)
+            val expenses = repository.getAllExpenses().first()
+            val categories = categoryRepository.getAllCategories().first()
+            csvManager.exportAllToCsvStream(outputStream, expenses, categories.map { it.toEntity() })
             _messageFlow.emit("Экспорт выполнен успешно")
         }
     }
 
-
-
-    fun importExpenses(uri: Uri) {
+    fun importAll(uri: Uri) {
         viewModelScope.launch {
-            when (val result = csvManager.importExpensesFromCsv(uri)) {
-                is Result.Success-> {
-                    result.getOrNull()?.let { expenses ->
-                        if (expenses.isNotEmpty()) {
-                            repository.insertAll(expenses)
-                            _messageFlow.emit("Импортировано ${expenses.size} расходов")
-                        } else {
-                            _messageFlow.emit("Файл пустой или не содержит допустимых данных")
-                        }
+            when (val result = csvManager.importAllFromCsv(uri)) {
+                is Result.Success -> {
+                    val (categories, expenses) = result.getOrNull() ?: Pair(emptyList(), emptyList())
+
+                    if (categories.isEmpty() && expenses.isEmpty()) {
+                        _messageFlow.emit("Файл пустой или не содержит допустимых данных")
+                        return@launch
                     }
+
+                    categoryRepository.insertAll(categories)
+                    repository.insertAll(expenses)
+
+                    _messageFlow.emit("Импортировано: ${categories.size} категорий, ${expenses.size} расходов")
                 }
+
                 is Result.Failure -> {
                     _messageFlow.emit("Ошибка импорта: ${result.exceptionOrNull()?.localizedMessage}")
                 }

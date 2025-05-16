@@ -41,6 +41,8 @@
     <string name="yes">Да</string>
     <string name="no">Нет</string>
 
+    <string name="category">Категория</string>
+    <string name="no_category">Без категории</string>
     <!-- StatsScreen -->
     <string name="statistics">Статистика</string>
     <string name="expenses_chart_label">Расходы</string>

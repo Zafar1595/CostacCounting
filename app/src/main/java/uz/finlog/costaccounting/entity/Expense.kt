@@ -5,5 +5,6 @@ data class Expense (
     val title: String,
     val comment: String,
     val amount: Double,
-    val date: Long
+    val date: Long,
+    val categoryId: Int
 )

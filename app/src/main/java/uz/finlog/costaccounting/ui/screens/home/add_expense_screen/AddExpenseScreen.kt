@@ -17,6 +17,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import uz.finlog.costaccounting.R
+import uz.finlog.costaccounting.entity.Category
 import uz.finlog.costaccounting.entity.Expense
 import java.time.Instant
 import java.time.ZoneId
@@ -41,6 +42,15 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val categories by viewModel.categories.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var selectedCategory by remember { mutableStateOf<Category?>(null) }
+
+    LaunchedEffect(categories) {
+        if (selectedCategory == null) {
+            selectedCategory = categories.find { it.id == 0 } // "Другое"
+        }
+    }
     LaunchedEffect(Unit) {
         viewModel.messageFlow.collect { message ->
             snackbarHostState.showSnackbar(message)
@@ -87,7 +97,8 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp).padding(top = 16.dp)
+                .padding(horizontal = 16.dp)
+                .padding(top = 16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -156,6 +167,36 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
 
             Spacer(modifier = Modifier.height(8.dp))
 
+            Text(
+                text = stringResource(R.string.category),
+                style = MaterialTheme.typography.titleMedium
+            )
+
+            Box(modifier = Modifier.fillMaxWidth()) {
+                OutlinedButton(
+                    onClick = { expanded = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(selectedCategory?.name ?: stringResource(R.string.no_category))
+                }
+
+                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                    categories.forEach { category ->
+                        DropdownMenuItem(
+                            text = {
+                                Text("${category.name} ${category.image}") },
+                            onClick = {
+                                selectedCategory = category
+                                expanded = false
+                            }
+                        )
+                    }
+                }
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 val errorFillFields = stringResource(id = R.string.error_fill_fields)
 
@@ -169,7 +210,8 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                                     title = title,
                                     comment = comment,
                                     amount = amt,
-                                    date = selectedDateMillis
+                                    date = selectedDateMillis,
+                                    categoryId = selectedCategory?.id ?: 0 // 0 = "Другое"
                                 )
                             )
                             navController.popBackStack()

@@ -10,7 +10,8 @@ data class ExpenseEntity(
     val title: String,
     val comment: String,
     val amount: Double,
-    val date: Long
+    val date: Long,
+    val categoryId: Int
 )
 
 fun ExpenseEntity.toExpense() = Expense(
@@ -18,7 +19,8 @@ fun ExpenseEntity.toExpense() = Expense(
     title = title,
     amount = amount,
     comment = comment,
-    date = date
+    date = date,
+    categoryId = categoryId
 )
 
 fun Expense.toExpenseEntity() = ExpenseEntity(
@@ -26,5 +28,6 @@ fun Expense.toExpenseEntity() = ExpenseEntity(
     title = title,
     amount = amount,
     comment = comment,
-    date = date
+    date = date,
+    categoryId = categoryId
 )

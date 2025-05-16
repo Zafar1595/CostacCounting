@@ -68,7 +68,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
     val filePickerLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.OpenDocument(),
         onResult = { uri ->
-            uri?.let { viewModel.importExpenses(it) }
+            uri?.let { viewModel.importAll(it) }
         }
     )
 
@@ -77,7 +77,7 @@ fun SettingsScreen(viewModel: SettingsViewModel, onBack: () -> Unit = {}) {
         onResult = { uri ->
             uri?.let {
                 context.contentResolver.openOutputStream(it)?.let { stream ->
-                    viewModel.exportExpenses(stream)
+                    viewModel.exportAll(stream)
                 }
             }
         }

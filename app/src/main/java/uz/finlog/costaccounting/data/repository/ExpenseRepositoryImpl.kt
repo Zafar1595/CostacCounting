@@ -48,7 +48,8 @@ class ExpenseRepositoryImpl(private val dao: ExpenseDao) : ExpenseRepository {
                     title = date.dayOfMonth.toString(),
                     comment = expensesForDay.joinToString { it.comment },
                     amount = expensesForDay.sumOf { it.amount },
-                    date = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
+                    date = date.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli(),
+                    categoryId = 0
                 )
             }
             .sortedBy { it.date }

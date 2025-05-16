@@ -24,7 +24,7 @@ import uz.finlog.costaccounting.R
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EditExpenseScreen(
+fun EditExpenseScreen( // TODO редактирование категории тут и добавить категории в HomeSCreen
     viewModel: DetailViewModel,
     expenseId: Int,
     navController: NavController
