@@ -52,4 +52,11 @@ object DateUtils {
         now.add(Calendar.DAY_OF_YEAR, -1)
         return isSameDay(now, target)
     }
+
+    fun Long.dateParse(): String{
+        val date = Date(this)
+        val format = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+        return format.format(date)
+    }
+
 }

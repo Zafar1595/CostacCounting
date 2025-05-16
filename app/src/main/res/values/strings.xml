@@ -46,6 +46,13 @@
     <!-- StatsScreen -->
     <string name="statistics">Статистика</string>
     <string name="expenses_chart_label">Расходы</string>
+    <string name="select_start_date">От</string>
+    <string name="select_end_date">До (включительно)</string>
+    <string name="clear_filters">Сбросить фильтр</string>
+    <string name="all_categories">Все категории</string>
+    <string name="select_date">Выбор даты</string>
+    <string name="apply">Применить</string>
+    <string name="filter">Фильтр</string>
 
     <!-- Russian month names (если нужно для строк) -->
     <string-array name="russian_months">

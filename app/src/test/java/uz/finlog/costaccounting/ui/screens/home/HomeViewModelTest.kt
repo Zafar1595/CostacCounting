@@ -1,6 +1,5 @@
 package uz.finlog.costaccounting.ui.screens.home
 
-import android.widget.CalendarView
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -11,16 +10,17 @@ import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Before
 import org.junit.Test
+import uz.finlog.costaccounting.domain.CategoryRepository
 import uz.finlog.costaccounting.domain.ExpenseRepository
 import uz.finlog.costaccounting.entity.Expense
-import java.time.LocalDate
 import java.util.Calendar
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class HomeViewModelTest {
 
-    private lateinit var repository: ExpenseRepository
+    private lateinit var expenseRepository: ExpenseRepository
+    private lateinit var categoryRepository: CategoryRepository
     private lateinit var viewModel: HomeViewModel
 
     private val testDispatcher = StandardTestDispatcher()
@@ -28,8 +28,8 @@ class HomeViewModelTest {
     @Before
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
-        repository = mockk()
-        viewModel = HomeViewModel(repository)
+        expenseRepository = mockk()
+        categoryRepository = mockk()
     }
 
     @After
@@ -38,50 +38,37 @@ class HomeViewModelTest {
     }
 
     @Test
-    fun `getAllexpenses updates expenses state`() = runTest(testDispatcher) {
-        val mockList = listOf(
-            Expense(1, "Salary", comment = "Comment one", 1000.0, System.currentTimeMillis()),
-            Expense(2, "Dividends", comment = "Comment two", 500.0, System.currentTimeMillis())
-        )
-
-        every { repository.getAllExpenses() } returns flowOf(mockList)
-
-        viewModel.getAllexpenses()
-        advanceUntilIdle()
-
-        assertEquals(2, viewModel.expenses.value.size)
-        assertEquals("Salary", viewModel.expenses.value[0].title)
-    }
-
-    @Test
-    fun `filteredExpenses returns filtered list based on query`() = runTest {
-        val mockExpense = listOf(
+    fun `filteredExpenses returns filtered list based on query`() = runTest(testDispatcher) {
+        val mockExpenseList = listOf(
             Expense(
                 id = 1,
                 title = "Coffee",
                 comment = "Comment one",
                 amount = 4.99,
-                date = Calendar.getInstance().timeInMillis
+                date = Calendar.getInstance().timeInMillis,
+                categoryId = 1
             ),
             Expense(
                 id = 2,
                 title = "Tea",
                 comment = "Comment two",
                 amount = 2.99,
-                date = Calendar.getInstance().timeInMillis
+                date = Calendar.getInstance().timeInMillis,
+                categoryId = 2
             )
         )
 
-        every { repository.getAllExpenses() } returns flowOf(mockExpense)
+        every { expenseRepository.getAllExpenses() } returns flowOf(mockExpenseList)
+        every { categoryRepository.getAllCategories() } returns flowOf(emptyList())
 
-        val viewModel = HomeViewModel(repository)
+        viewModel = HomeViewModel(
+            expenseRepository = expenseRepository,
+            categoryRepository = categoryRepository
+        )
 
         val job = launch {
-            viewModel.filteredExpenses.collect{} // Важно: активирует combine
+            viewModel.filteredExpenses.collect {}
         }
-
-        viewModel.getAllexpenses()
-        advanceUntilIdle()
 
         viewModel.onSearchQueryChanged("Coffee")
         advanceUntilIdle()
@@ -91,6 +78,6 @@ class HomeViewModelTest {
         assertEquals(1, result.size)
         assertEquals("Coffee", result.first().title)
 
-        job.cancel() // Не забудь закрыть
+        job.cancel()
     }
 }

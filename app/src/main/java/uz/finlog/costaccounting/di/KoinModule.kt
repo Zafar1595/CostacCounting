@@ -19,7 +19,7 @@ import uz.finlog.costaccounting.ui.screens.stats.StatsScreenViewModel
 import uz.finlog.costaccounting.util.CsvManager
 
 val appModule = module {
-    viewModel { HomeViewModel(get()) }
+    viewModel { HomeViewModel(get(), get()) }
     viewModel { AddExpenseScreenViewModel(get(), get()) }
     viewModel { StatsScreenViewModel(get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get()) }
