@@ -237,12 +237,50 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
             }
         }
     }
+
+    // Show filter bottom sheet if visible
+    if (sheetState.isVisible) {
+        ModalBottomSheet(
+            onDismissRequest = {
+                coroutineScope.launch { sheetState.hide() }
+            },
+            sheetState = sheetState
+        ) {
+            val selectedCategoryId by viewModel.selectedCategoryId.collectAsState()
+            val startDate = remember { mutableStateOf<Long?>(null) }
+            val endDate = remember { mutableStateOf<Long?>(null) }
+            startDate.value = viewModel.getStartDate()
+            endDate.value = viewModel.getEndDate()
+
+            FilterBottomSheetContent(
+                initialSelectedCategoryId = selectedCategoryId,
+                initialStartDate = startDate.value,
+                initialEndDate = endDate.value,
+                onApply = { categoryId, start, end ->
+                    if (start == null || end == null || start <= end) {
+                        viewModel.onCategorySelected(categoryId)
+                        viewModel.onDateRangeSelected(start, end)
+                        coroutineScope.launch { sheetState.hide() }
+                    } else {
+                        coroutineScope.launch {
+                            viewModel.showMessage("Дата начала не может быть позже даты окончания")
+                        }
+                    }
+                },
+                onClear = {
+                    viewModel.clearFilters()
+                },
+                onClose = {
+                    coroutineScope.launch { sheetState.hide() }
+                }
+            )
+        }
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun FilterBottomSheetContent(
-    categories: List<Category>,
     initialSelectedCategoryId: Int?,
     initialStartDate: Long?,
     initialEndDate: Long?,
@@ -258,33 +296,9 @@ fun FilterBottomSheetContent(
     var showEndPicker by remember { mutableStateOf(false) }
 
     Column(modifier = Modifier.padding(16.dp)) {
-        Text(stringResource(R.string.filter), style = MaterialTheme.typography.titleLarge)
+        Text(stringResource(R.string.filter_by_date), style = MaterialTheme.typography.titleLarge)
 
-        Spacer(modifier = Modifier.height(8.dp))
-
-        var expanded by remember { mutableStateOf(false) }
-        OutlinedButton(onClick = { expanded = true }, modifier = Modifier.fillMaxWidth()) {
-            Text(
-                categories.find { it.id == selectedCategory.value }?.name
-                    ?: stringResource(R.string.all_categories)
-            )
-        }
-
-        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text(stringResource(R.string.all_categories)) }, onClick = {
-                selectedCategory.value = null
-                expanded = false
-            })
-            categories.forEach {
-                DropdownMenuItem(text = { Text(it.name) }, onClick = {
-                    selectedCategory.value = it.id
-                    expanded = false
-                })
-            }
-        }
-
-        Spacer(modifier = Modifier.height(12.dp))
-        Text(stringResource(R.string.select_date), style = MaterialTheme.typography.labelLarge)
+        Spacer(modifier = Modifier.height(16.dp))
 
         Surface(
             modifier = Modifier.fillMaxWidth(),

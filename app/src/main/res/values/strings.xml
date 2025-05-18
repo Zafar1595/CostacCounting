@@ -49,6 +49,8 @@
     <string name="select_start_date">От</string>
     <string name="select_end_date">До (включительно)</string>
     <string name="clear_filters">Сбросить фильтр</string>
+    <string name="filter_by_date">Фильтр по дате</string>
+    <string name="reset">Сброс</string>
     <string name="all_categories">Все категории</string>
     <string name="select_date">Выбор даты</string>
     <string name="apply">Применить</string>
