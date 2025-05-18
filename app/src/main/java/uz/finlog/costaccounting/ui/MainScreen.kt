@@ -180,10 +180,11 @@ fun AdaptiveAdBanner(adUnitId: String) {
     AndroidView(
         modifier = Modifier
             .fillMaxWidth()
-            .height(adSize.height.toDp()),
+//            .height(adSize.height.toDp())
+        ,
         factory = {
             AdView(context).apply {
-                setAdSize(AdSize.MEDIUM_RECTANGLE)
+                setAdSize(AdSize.BANNER)
                 setAdUnitId(adUnitId)
                 loadAd(AdRequest.Builder().build())
             }
