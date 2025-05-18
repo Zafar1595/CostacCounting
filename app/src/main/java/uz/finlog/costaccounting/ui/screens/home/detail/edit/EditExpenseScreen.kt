@@ -22,6 +22,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import uz.finlog.costaccounting.R
 import uz.finlog.costaccounting.entity.Category
+import uz.finlog.costaccounting.util.AppConstants.DEFAULT_CATEGORY
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -228,7 +229,8 @@ fun EditExpenseScreen(
                             title = title,
                             amount = amount.toDoubleOrNull() ?: expense!!.amount,
                             comment = comment,
-                            date = dateMillis
+                            date = dateMillis,
+                            categoryId = selectedCategory?.id ?: DEFAULT_CATEGORY
                         )
                         viewModel.updateExpense(updatedExpense)
                         navController.popBackStack()

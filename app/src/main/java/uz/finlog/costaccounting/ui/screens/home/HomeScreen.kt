@@ -1,11 +1,13 @@
 package uz.finlog.costaccounting.ui.screens.home
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -14,6 +16,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,6 +46,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
     val totalAllTimeText =
         stringResource(R.string.total_all_time, totalFilteredSum, selectedCurrency)
 
+    val categories = viewModel.categories.collectAsState()
+
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
@@ -52,6 +57,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
             snackbarHostState.showSnackbar(message)
         }
     }
+
+    val selectedCategoryId by viewModel.selectedCategoryId.collectAsState()
 
     Scaffold(
         topBar = {
@@ -125,10 +132,28 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
 
             LazyColumn(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
+                    .fillMaxSize(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                item {
+                    LazyRow(modifier = Modifier.padding(vertical = 8.dp, horizontal = 8.dp)) {
+                        item {
+                            CategoryChip(
+                                name = stringResource(R.string.all_categories),
+                                isSelected = selectedCategoryId == null,
+                                onClick = { viewModel.onCategorySelected(null) }
+                            )
+                        }
+                        items(categories.value) { category ->
+                            CategoryChip(
+                                name = category.name,
+                                isSelected = selectedCategoryId == category.id,
+                                onClick = { viewModel.onCategorySelected(category.id) }
+                            )
+                        }
+                    }
+                }
+
                 groupedExpenses.forEach { (date, expenseList) ->
                     item {
                         Text(
@@ -136,7 +161,8 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                             style = MaterialTheme.typography.titleMedium,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
-                                .padding(top = 16.dp)
+                                .padding(top = 12.dp)
+                                .padding(horizontal = 16.dp)
                                 .fillMaxWidth(),
                             textAlign = TextAlign.Start
                         )
@@ -148,6 +174,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
                                 .clickable(
                                     interactionSource = interactionSource,
                                     indication = null,
@@ -210,47 +237,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
             }
         }
     }
-
-    if (sheetState.isVisible) {
-        ModalBottomSheet(
-            onDismissRequest = {
-                coroutineScope.launch { sheetState.hide() }
-            },
-            sheetState = sheetState
-        ) {
-            val selectedCategoryId by viewModel.selectedCategoryId.collectAsState()
-            val startDate = remember { mutableStateOf<Long?>(null) }
-            val endDate = remember { mutableStateOf<Long?>(null) }
-            startDate.value = viewModel.getStartDate()
-            endDate.value = viewModel.getEndDate()
-
-            FilterBottomSheetContent(
-                categories = viewModel.categories.collectAsState().value,
-                initialSelectedCategoryId = selectedCategoryId,
-                initialStartDate = startDate.value,
-                initialEndDate = endDate.value,
-                onApply = { categoryId, start, end ->
-                    if (start == null || end == null || start <= end) {
-                        viewModel.onCategorySelected(categoryId)
-                        viewModel.onDateRangeSelected(start, end)
-                        coroutineScope.launch { sheetState.hide() }
-                    } else {
-                        coroutineScope.launch {
-                            viewModel.showMessage("Дата начала должна быть раньше даты окончания")
-                        }
-                    }
-                },
-                onClear = {
-                    viewModel.clearFilters()
-                },
-                onClose = {
-                    coroutineScope.launch { sheetState.hide() }
-                }
-            )
-        }
-    }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -392,5 +379,34 @@ fun FilterBottomSheetContent(
         ) {
             DatePicker(state = state)
         }
+    }
+}
+
+@Composable
+fun CategoryChip(name: String, isSelected: Boolean, onClick: () -> Unit) {
+    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background
+    val contentColor = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
+    val shape = RoundedCornerShape(16.dp)
+    val interactionSource = remember { MutableInteractionSource() }
+
+    Surface(
+        modifier = Modifier
+            .padding(end = 8.dp)
+            .clip(shape)
+            .clickable(
+                interactionSource = interactionSource,
+                indication = LocalIndication.current,
+                onClick = onClick
+            ),
+        shape = shape,
+        color = backgroundColor,
+        contentColor = contentColor,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
+    ) {
+        Text(
+            text = name,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+        )
     }
 }
