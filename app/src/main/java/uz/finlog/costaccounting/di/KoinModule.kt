@@ -16,6 +16,7 @@ import uz.finlog.costaccounting.ui.screens.home.add_expense_screen.AddExpenseScr
 import uz.finlog.costaccounting.ui.screens.home.detail.DetailViewModel
 import uz.finlog.costaccounting.ui.screens.settings.SettingsViewModel
 import uz.finlog.costaccounting.ui.screens.stats.StatsScreenViewModel
+import uz.finlog.costaccounting.ui.screens.quickadd.QuickAddViewModel
 import uz.finlog.costaccounting.util.CsvManager
 
 val appModule = module {
@@ -24,6 +25,7 @@ val appModule = module {
     viewModel { StatsScreenViewModel(get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get()) }
     viewModel { DetailViewModel(get(), get()) }
+    viewModel { QuickAddViewModel(get(), get()) }
 
     single { CsvManager(get()) }
 }
