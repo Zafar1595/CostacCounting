@@ -212,7 +212,7 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
 
                 Button(
                     onClick = {
-                        val amt = amount.toDoubleOrNull()
+                        val amt = amount.filter { it.isDigit() }.toDoubleOrNull()
                         if (title.isNotBlank() && amt != null) {
                             viewModel.addExpense(
                                 Expense(

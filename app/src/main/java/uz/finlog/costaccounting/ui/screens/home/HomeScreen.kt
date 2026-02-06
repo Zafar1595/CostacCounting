@@ -1,7 +1,6 @@
 package uz.finlog.costaccounting.ui.screens.home
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.LocalIndication
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -16,21 +15,17 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import kotlinx.coroutines.launch
 import uz.finlog.costaccounting.R
-import uz.finlog.costaccounting.entity.Category
 import uz.finlog.costaccounting.ui.ScreenRoute
-import uz.finlog.costaccounting.util.getDateString
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
-import uz.finlog.costaccounting.util.DateUtils.dateParse
 import uz.finlog.costaccounting.util.DateUtils.toDisplayDate
 import uz.finlog.costaccounting.util.formatAmount
-import java.util.Date
+import uz.finlog.costaccounting.util.getDateString
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -43,7 +38,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
 
     val title = stringResource(R.string.expenses)
     val searchHint = stringResource(R.string.search_by_title)
-    val totalFilteredSum = String.format("%.2f", expenses.sumOf { it.amount })
+    val totalFilteredSum = expenses.sumOf { it.amount }.formatAmount()
     val totalAllTimeText =
         stringResource(R.string.total_all_time, totalFilteredSum, selectedCurrency)
 
@@ -276,152 +271,5 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                 }
             )
         }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun FilterBottomSheetContent(
-    initialSelectedCategoryId: Int?,
-    initialStartDate: Long?,
-    initialEndDate: Long?,
-    onApply: (Int?, Long?, Long?) -> Unit,
-    onClear: () -> Unit,
-    onClose: () -> Unit
-) {
-    val selectedCategory = remember { mutableStateOf(initialSelectedCategoryId) }
-    val currentStartDate = remember { mutableStateOf(initialStartDate) }
-    val currentEndDate = remember { mutableStateOf(initialEndDate) }
-
-    var showStartPicker by remember { mutableStateOf(false) }
-    var showEndPicker by remember { mutableStateOf(false) }
-
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(stringResource(R.string.filter_by_date), style = MaterialTheme.typography.titleLarge)
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Surface(
-            modifier = Modifier.fillMaxWidth(),
-            tonalElevation = 1.dp
-        ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                OutlinedButton(
-                    onClick = { showStartPicker = true },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(currentStartDate.value?.let { "От: ${Date(it).time.dateParse()}" } ?: "От")
-                }
-
-                OutlinedButton(
-                    onClick = { showEndPicker = true },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Text(currentEndDate.value?.let { "До: ${Date(it).time.dateParse()}" } ?: "До")
-                }
-            }
-        }
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            TextButton(onClick = {
-                onClear()
-                onClose()
-            }) {
-                Text(stringResource(R.string.clear_filters))
-            }
-            Button(onClick = {
-                onApply(
-                    selectedCategory.value,
-                    currentStartDate.value,
-                    currentEndDate.value
-                )
-                if (currentStartDate.value == null || currentEndDate.value == null || (currentStartDate.value
-                        ?: 0) < (currentEndDate.value ?: 0)
-                )
-                    onClose()
-            }) {
-                Text(stringResource(R.string.apply))
-            }
-        }
-    }
-
-    if (showStartPicker) {
-        val state = rememberDatePickerState()
-        DatePickerDialog(
-            onDismissRequest = { showStartPicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    currentStartDate.value = state.selectedDateMillis
-                    showStartPicker = false
-                }) {
-                    Text(stringResource(R.string.ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showStartPicker = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        ) {
-            DatePicker(state = state)
-        }
-    }
-
-    if (showEndPicker) {
-        val state = rememberDatePickerState()
-        DatePickerDialog(
-            onDismissRequest = { showEndPicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    currentEndDate.value = state.selectedDateMillis
-                    showEndPicker = false
-                }) {
-                    Text(stringResource(R.string.ok))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showEndPicker = false }) {
-                    Text(stringResource(R.string.cancel))
-                }
-            }
-        ) {
-            DatePicker(state = state)
-        }
-    }
-}
-
-@Composable
-fun CategoryChip(name: String, isSelected: Boolean, onClick: () -> Unit) {
-    val backgroundColor = if (isSelected) MaterialTheme.colorScheme.surfaceVariant else MaterialTheme.colorScheme.background
-    val contentColor = if (isSelected) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
-    val shape = RoundedCornerShape(16.dp)
-    val interactionSource = remember { MutableInteractionSource() }
-
-    Surface(
-        modifier = Modifier
-            .padding(end = 8.dp)
-            .clip(shape)
-            .clickable(
-                interactionSource = interactionSource,
-                indication = LocalIndication.current,
-                onClick = onClick
-            ),
-        shape = shape,
-        color = backgroundColor,
-        contentColor = contentColor,
-        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline)
-    ) {
-        Text(
-            text = name,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
-        )
     }
 }
