@@ -41,4 +41,6 @@ interface ExpenseRepository {
      * Обновляем расход
      */
     suspend fun updateExpense(expense: Expense)
+
+    suspend fun getTotalSpentSince(timestamp: Long): Double
 }

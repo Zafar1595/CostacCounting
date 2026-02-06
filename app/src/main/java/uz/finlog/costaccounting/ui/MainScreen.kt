@@ -24,7 +24,9 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.compose.rememberNavController
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Text
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -58,110 +60,73 @@ sealed class ScreenRoute(
     }
 }
 
-
 @Composable
 fun MainScreen() {
     val navController = rememberNavController()
     val settingsViewModel: SettingsViewModel = koinViewModel()
-    setSelectedCurrency(settingsViewModel.selectedCurrency.collectAsState().value)
+    val currentCurrency by settingsViewModel.selectedCurrency.collectAsState()
+
+    // Передаем валюту в константы только при ее реальном изменении
+    LaunchedEffect(currentCurrency) {
+        setSelectedCurrency(currentCurrency)
+    }
+
+    // Определяем текущий маршрут
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry?.destination?.route
+
+    // Список элементов нижней навигации (только те, у которых есть иконка)
+    val bottomNavItems = remember {
+        listOf(ScreenRoute.Home, ScreenRoute.Stats, ScreenRoute.Settings)
+    }
 
     Scaffold(
         bottomBar = {
-            Column(modifier = Modifier.fillMaxWidth()) {
-                AdaptiveAdBanner(adUnitId = adUnitId)
-                Spacer(modifier = Modifier.padding(1.dp))
-                val currentBackStackEntry = navController.currentBackStackEntryAsState()
-                if (currentBackStackEntry.value?.destination?.route != ScreenRoute.Add.route) {
-                    NavigationBar {
-                        val currentRoute =
-                            navController.currentBackStackEntryAsState().value?.destination?.route
+            // Показываем бар только на главных экранах
+            if (currentRoute in bottomNavItems.map { it.route }) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    AdaptiveAdBanner(adUnitId = adUnitId)
 
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    ScreenRoute.Home.icon ?: Icons.Default.Abc,
-                                    contentDescription = ScreenRoute.Home.name
-                                )
-                            },
-                            label = { Text(ScreenRoute.Home.name) },
-                            selected = currentRoute == ScreenRoute.Home.route,
-                            onClick = {
-                                if (currentRoute != ScreenRoute.Home.route) {
-                                    navController.navigate(ScreenRoute.Home.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
+                    NavigationBar {
+                        bottomNavItems.forEach { screen ->
+                            NavigationBarItem(
+                                icon = {
+                                    Icon(
+                                        imageVector = screen.icon ?: Icons.Default.Abc,
+                                        contentDescription = screen.name
+                                    )
+                                },
+                                label = { Text(screen.name) },
+                                selected = currentRoute == screen.route,
+                                onClick = {
+                                    if (currentRoute != screen.route) {
+                                        navController.navigate(screen.route) {
+                                            // Очищаем стек до начального экрана, чтобы не копить вкладки
+                                            popUpTo(navController.graph.startDestinationId) {
+                                                saveState = true
+                                            }
+                                            launchSingleTop = true
+                                            restoreState = true
                                         }
-                                        launchSingleTop = true
-                                        restoreState = true
                                     }
                                 }
-                            }
-                        )
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    ScreenRoute.Stats.icon ?: Icons.Default.Abc,
-                                    contentDescription = ScreenRoute.Stats.name
-                                )
-                            },
-                            label = { Text(ScreenRoute.Stats.name) },
-                            selected = currentRoute == ScreenRoute.Stats.route,
-                            onClick = {
-                                if (currentRoute != ScreenRoute.Stats.route) {
-                                    navController.navigate(ScreenRoute.Stats.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
-                            }
-                        )
-                        NavigationBarItem(
-                            icon = {
-                                Icon(
-                                    ScreenRoute.Settings.icon ?: Icons.Default.Settings,
-                                    contentDescription = ScreenRoute.Stats.name
-                                )
-                            },
-                            label = { Text(ScreenRoute.Settings.name) },
-                            selected = currentRoute == ScreenRoute.Settings.route,
-                            onClick = {
-                                if (currentRoute != ScreenRoute.Settings.route) {
-                                    navController.navigate(ScreenRoute.Settings.route) {
-                                        popUpTo(navController.graph.startDestinationId) {
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
         },
         floatingActionButton = {
-            val currentBackStackEntry = navController.currentBackStackEntryAsState()
-            if (currentBackStackEntry.value?.destination?.route == ScreenRoute.Home.route)
+            // FAB только на главном экране
+            if (currentRoute == ScreenRoute.Home.route) {
                 FloatingActionButton(
-                    onClick = {
-                        navController.navigate(ScreenRoute.Add.route) {
-                            popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
-                        }
-                    },
+                    onClick = { navController.navigate(ScreenRoute.Add.route) },
                     containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
                     shape = CircleShape
                 ) {
-                    Icon(
-                        ScreenRoute.Add.icon ?: Icons.Default.Add,
-                        contentDescription = ScreenRoute.Add.name
-                    )
+                    Icon(Icons.Default.Add, contentDescription = "Добавить")
                 }
+            }
         }
     ) { innerPadding ->
         AppNavGraph(innerPadding, navController)

@@ -29,6 +29,7 @@ import uz.finlog.costaccounting.util.getDateString
 import uz.finlog.costaccounting.util.AppConstants.selectedCurrency
 import uz.finlog.costaccounting.util.DateUtils.dateParse
 import uz.finlog.costaccounting.util.DateUtils.toDisplayDate
+import uz.finlog.costaccounting.util.formatAmount
 import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -219,7 +220,7 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                                     verticalAlignment = Alignment.CenterVertically
                                 ) {
                                     Text(
-                                        text = "${expense.amount} $selectedCurrency",
+                                        text = "${expense.amount.formatAmount()} $selectedCurrency",
                                         style = MaterialTheme.typography.bodyLarge,
                                         color = MaterialTheme.colorScheme.onSurface
                                     )

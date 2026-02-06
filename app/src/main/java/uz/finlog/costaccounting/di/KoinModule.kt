@@ -2,6 +2,7 @@ package uz.finlog.costaccounting.di
 
 import org.koin.android.ext.koin.androidContext
 import org.koin.androidx.viewmodel.dsl.viewModel
+import org.koin.androidx.workmanager.dsl.worker
 import org.koin.dsl.module
 import uz.finlog.costaccounting.data.UserPreferences
 import uz.finlog.costaccounting.data.dao.AppDatabase
@@ -16,16 +17,21 @@ import uz.finlog.costaccounting.ui.screens.home.add_expense_screen.AddExpenseScr
 import uz.finlog.costaccounting.ui.screens.home.detail.DetailViewModel
 import uz.finlog.costaccounting.ui.screens.settings.SettingsViewModel
 import uz.finlog.costaccounting.ui.screens.stats.StatsScreenViewModel
+import uz.finlog.costaccounting.ui.widget.UpdateWidgetWorker
+import uz.finlog.costaccounting.ui.widget.WidgetManager
+import uz.finlog.costaccounting.ui.widget.WidgetManagerImpl
 import uz.finlog.costaccounting.util.CsvManager
 
 val appModule = module {
     viewModel { HomeViewModel(get(), get()) }
-    viewModel { AddExpenseScreenViewModel(get(), get()) }
+    viewModel { AddExpenseScreenViewModel(get(), get(), get()) }
     viewModel { StatsScreenViewModel(get()) }
     viewModel { SettingsViewModel(get(), get(), get(), get()) }
     viewModel { DetailViewModel(get(), get()) }
 
     single { CsvManager(get()) }
+
+    single<WidgetManager> { WidgetManagerImpl(androidContext()) }
 }
 
 val databaseModule = module {
@@ -43,4 +49,8 @@ val repositoryModule = module {
     single { UserPreferences(androidContext()) }
 
     single<CategoryRepository> { CategoryRepositoryImpl(get()) }
+}
+
+val workerModule = module {
+    worker { UpdateWidgetWorker(get(), get(), get(), get()) }
 }

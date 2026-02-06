@@ -2,6 +2,7 @@
 activityComposeVersion = "1.8.0"
 agp = "8.9.1"
 coreTesting = "2.2.0"
+glanceAppwidget = "1.1.1"
 koinAndroid = "3.5.3"
 koinAndroidxCompose = "3.5.3"
 koinCore = "3.5.3"
@@ -28,6 +29,7 @@ junitJunit = "4.12"
 androidx-activity-compose-v180 = { module = "androidx.activity:activity-compose", version.ref = "activityComposeVersion" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-testing = { module = "androidx.arch.core:core-testing", version.ref = "coreTesting" }
+androidx-glance-appwidget = { module = "androidx.glance:glance-appwidget", version.ref = "glanceAppwidget" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleViewmodelCompose" }
 androidx-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-navigation-compose = { module = "androidx.navigation:navigation-compose", version.ref = "navigationCompose" }

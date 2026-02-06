@@ -40,4 +40,7 @@ interface ExpenseDao {
     @Update
     suspend fun update(expense: ExpenseEntity)
 
+    @Query("SELECT SUM(amount) FROM expenses WHERE date >= :startTimestamp")
+    suspend fun getTotalSpentSince(startTimestamp: Long): Double?
+
 }

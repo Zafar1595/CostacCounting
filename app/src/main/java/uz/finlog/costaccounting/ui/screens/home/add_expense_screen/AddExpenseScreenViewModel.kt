@@ -5,23 +5,19 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import uz.finlog.costaccounting.data.dao.ExpenseDao
-import uz.finlog.costaccounting.data.entity.CategoryEntity
 import uz.finlog.costaccounting.data.entity.ExpenseEntity
-import uz.finlog.costaccounting.data.entity.toExpense
-import uz.finlog.costaccounting.data.entity.toExpenseEntity
 import uz.finlog.costaccounting.domain.CategoryRepository
 import uz.finlog.costaccounting.domain.ExpenseRepository
 import uz.finlog.costaccounting.entity.Category
 import uz.finlog.costaccounting.entity.Expense
+import uz.finlog.costaccounting.ui.widget.WidgetManager
 
 class AddExpenseScreenViewModel(
     private val repository: ExpenseRepository,
-    private val categoryRepository: CategoryRepository
+    private val categoryRepository: CategoryRepository,
+    private val widgetManager: WidgetManager
 ) : ViewModel() {
 
     private val _messageFlow = MutableSharedFlow<String>()
@@ -43,6 +39,7 @@ class AddExpenseScreenViewModel(
             repository.insert(expense)
 //            repository.insertAll(getTestData().map { it.toExpense() })
 //            _messageFlow.emit("Расход добавлен")
+            widgetManager.refreshWidget()
         }
     }
 

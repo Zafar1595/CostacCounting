@@ -105,4 +105,7 @@ class ExpenseRepositoryImpl(private val dao: ExpenseDao) : ExpenseRepository {
     override suspend fun deleteExpense(expense: Expense) = dao.delete(expense.toExpenseEntity())
 
     override suspend fun updateExpense(expense: Expense) = dao.update(expense.toExpenseEntity())
+
+    override suspend fun getTotalSpentSince(timestamp: Long): Double = dao.getTotalSpentSince(timestamp) ?: 0.0
+
 }

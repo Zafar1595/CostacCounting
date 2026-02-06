@@ -13,6 +13,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -113,11 +114,20 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
 
             OutlinedTextField(
                 value = amount,
-                onValueChange = { amount = it },
+                onValueChange = { input ->
+                    // 1. Ограничиваем длину (например, до 12 символов)
+                    if (input.filter { it.isDigit() }.length <= 12) {
+                        // 2. Форматируем и сохраняем
+                        amount = formatAmount(input)
+                    }
+                },
                 label = { Text(stringResource(id = R.string.label_amount)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    keyboardType = KeyboardType.Number,
+                    imeAction = ImeAction.Done
+                ),
                 singleLine = true
             )
 
@@ -235,4 +245,13 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
             }
         }
     }
+}
+
+fun formatAmount(input: String): String {
+    // Убираем всё кроме цифр
+    val digits = input.filter { it.isDigit() }
+    if (digits.isEmpty()) return ""
+
+    // Форматируем число с разделителями тысяч
+    return String.format("%,d", digits.toLong()).replace(',', ' ')
 }

@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.*
 import androidx.navigation.navArgument
+import androidx.navigation.navDeepLink
 import org.koin.androidx.compose.koinViewModel
 import uz.finlog.costaccounting.ui.screens.home.HomeScreen
 import uz.finlog.costaccounting.ui.screens.home.HomeViewModel
@@ -38,7 +39,10 @@ fun AppNavGraph(innerPadding: PaddingValues, navController: NavHostController) {
             val viewModel: StatsScreenViewModel = koinViewModel()
             StatsScreen(navController = navController, viewModel)
         }
-        composable(ScreenRoute.Add.route) {
+        composable(ScreenRoute.Add.route,
+            deepLinks = listOf(
+                navDeepLink { uriPattern = "costaccounting://home.add_new_expense" }
+            )) {
             val viewModel: AddExpenseScreenViewModel = koinViewModel()
             AddExpenseScreen(navController = navController, viewModel = viewModel)
         }

@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -80,6 +82,9 @@ dependencies {
     implementation(libs.mpandroidchart)
 
     implementation(libs.play.services.ads)
+    implementation(libs.androidx.glance.appwidget)
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    implementation("io.insert-koin:koin-androidx-workmanager:3.5.3")
 
     // Юнит-тестирование
     testImplementation(libs.junit)
