@@ -1,20 +1,19 @@
 package uz.finlog.costaccounting.ui.screens.home.add_expense_screen
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBackIosNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.*
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import uz.finlog.costaccounting.R
@@ -46,6 +45,9 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
     val categories by viewModel.categories.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
+
+    val scrollState = rememberScrollState()
+    val errorFillFields = stringResource(id = R.string.error_fill_fields)
 
     LaunchedEffect(categories) {
         if (selectedCategory == null) {
@@ -98,121 +100,139 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
         Column(
             modifier = Modifier
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .padding(top = 16.dp)
-                .fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .imePadding() // Поднимает контент над клавиатурой
+                .fillMaxSize()
         ) {
-            OutlinedTextField(
-                value = title,
-                onValueChange = { title = it },
-                label = { Text(stringResource(id = R.string.label_title)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                singleLine = true
-            )
-
-            OutlinedTextField(
-                value = amount,
-                onValueChange = { input ->
-                    // 1. Ограничиваем длину (например, до 12 символов)
-                    if (input.filter { it.isDigit() }.length <= 12) {
-                        // 2. Форматируем и сохраняем
-                        amount = formatAmount(input)
-                    }
-                },
-                label = { Text(stringResource(id = R.string.label_amount)) },
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                keyboardOptions = KeyboardOptions.Default.copy(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Done
-                ),
-                singleLine = true
-            )
-
-            OutlinedTextField(
-                value = comment,
-                onValueChange = { comment = it },
-                label = { Text(stringResource(id = R.string.label_comment)) },
+            // Прокручиваемая часть с полями ввода
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp),
-                shape = RoundedCornerShape(16.dp),
-                singleLine = false,
-                maxLines = 5
-            )
-
-            OutlinedButton(
-                onClick = { showDatePicker = true },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = RoundedCornerShape(16.dp)
+                    .weight(1f) // Занимает всё доступное пространство
+                    .verticalScroll(scrollState)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Text(stringResource(R.string.label_date, formatter.format(localDate)))
-            }
+                OutlinedTextField(
+                    value = title,
+                    onValueChange = { title = it },
+                    label = { Text(stringResource(id = R.string.label_title)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                )
 
-            if (showDatePicker) {
-                DatePickerDialog(
-                    onDismissRequest = { showDatePicker = false },
-                    confirmButton = {
-                        TextButton(onClick = {
-                            selectedDateMillis = datePickerState.selectedDateMillis
-                                ?: System.currentTimeMillis()
-                            showDatePicker = false
-                        }) {
-                            Text(stringResource(id = R.string.ok))
+                OutlinedTextField(
+                    value = amount,
+                    onValueChange = { input ->
+                        val digits = input.filter { it.isDigit() }
+                        if (digits.length <= 12) {
+                            amount = digits
                         }
                     },
-                    dismissButton = {
-                        TextButton(onClick = { showDatePicker = false }) {
-                            Text(stringResource(id = R.string.cancel))
-                        }
-                    }
-                ) {
-                    DatePicker(state = datePickerState)
-                }
-            }
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Text(
-                text = stringResource(R.string.category),
-                style = MaterialTheme.typography.titleMedium
-            )
-
-            Box(modifier = Modifier.fillMaxWidth()) {
-                OutlinedButton(
-                    onClick = { expanded = true },
+                    label = { Text(stringResource(id = R.string.label_amount)) },
                     modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    keyboardOptions = KeyboardOptions.Default.copy(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Done
+                    ),
+                    singleLine = true,
+                    visualTransformation = ThousandsSeparatorTransformation()
+                )
+
+                OutlinedTextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text(stringResource(id = R.string.label_comment)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    singleLine = false,
+                    maxLines = 5,
+                    keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences)
+                )
+
+                OutlinedButton(
+                    onClick = { showDatePicker = true },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
                     shape = RoundedCornerShape(16.dp)
                 ) {
-                    Text(selectedCategory?.name ?: stringResource(R.string.no_category))
+                    Text(stringResource(R.string.label_date, formatter.format(localDate)))
                 }
 
-                DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                    categories.forEach { category ->
-                        DropdownMenuItem(
-                            text = {
-                                Text("${category.name} ${category.image}") },
-                            onClick = {
-                                selectedCategory = category
-                                expanded = false
+                if (showDatePicker) {
+                    DatePickerDialog(
+                        onDismissRequest = { showDatePicker = false },
+                        confirmButton = {
+                            TextButton(onClick = {
+                                selectedDateMillis = datePickerState.selectedDateMillis
+                                    ?: System.currentTimeMillis()
+                                showDatePicker = false
+                            }) {
+                                Text(stringResource(id = R.string.ok))
                             }
-                        )
+                        },
+                        dismissButton = {
+                            TextButton(onClick = { showDatePicker = false }) {
+                                Text(stringResource(id = R.string.cancel))
+                            }
+                        }
+                    ) {
+                        DatePicker(state = datePickerState)
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = stringResource(R.string.category),
+                    style = MaterialTheme.typography.titleMedium
+                )
+
+                Box(modifier = Modifier.fillMaxWidth()) {
+                    OutlinedButton(
+                        onClick = { expanded = true },
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp)
+                    ) {
+                        Text(selectedCategory?.name ?: stringResource(R.string.no_category))
+                    }
+
+                    DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+                        categories.forEach { category ->
+                            DropdownMenuItem(
+                                text = { Text("${category.name} ${category.image}") },
+                                onClick = {
+                                    selectedCategory = category
+                                    expanded = false
+                                }
+                            )
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                val errorFillFields = stringResource(id = R.string.error_fill_fields)
+            // Фиксированная панель с кнопками внизу
+            Row(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = { navController.popBackStack() },
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Text(stringResource(id = R.string.cancel))
+                }
 
                 Button(
                     onClick = {
-                        val amt = amount.filter { it.isDigit() }.toDoubleOrNull()
+                        val amt = amount.toDoubleOrNull()
                         if (title.isNotBlank() && amt != null) {
                             viewModel.addExpense(
                                 Expense(
@@ -221,7 +241,7 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                                     comment = comment,
                                     amount = amt,
                                     date = selectedDateMillis,
-                                    categoryId = selectedCategory?.id ?: 0 // 0 = "Другое"
+                                    categoryId = selectedCategory?.id ?: 0
                                 )
                             )
                             navController.popBackStack()
@@ -234,24 +254,49 @@ fun AddExpenseScreen(navController: NavController, viewModel: AddExpenseScreenVi
                 ) {
                     Text(stringResource(id = R.string.save))
                 }
-
-                OutlinedButton(
-                    onClick = { navController.popBackStack() },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(16.dp)
-                ) {
-                    Text(stringResource(id = R.string.cancel))
-                }
             }
         }
     }
 }
 
-fun formatAmount(input: String): String {
-    // Убираем всё кроме цифр
-    val digits = input.filter { it.isDigit() }
-    if (digits.isEmpty()) return ""
+class ThousandsSeparatorTransformation : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val originalText = text.text
+        if (originalText.isEmpty()) return TransformedText(text, OffsetMapping.Identity)
 
-    // Форматируем число с разделителями тысяч
-    return String.format("%,d", digits.toLong()).replace(',', ' ')
+        val formattedText = StringBuilder()
+        val len = originalText.length
+        for (i in 0 until len) {
+            formattedText.append(originalText[i])
+            val remaining = len - i - 1
+            if (remaining > 0 && remaining % 3 == 0) {
+                formattedText.append(" ")
+            }
+        }
+
+        val offsetMapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int {
+                var spaces = 0
+                for (i in 0 until offset) {
+                    val remaining = len - i - 1
+                    if (remaining > 0 && remaining % 3 == 0) {
+                        spaces++
+                    }
+                }
+                return offset + spaces
+            }
+
+            override fun transformedToOriginal(offset: Int): Int {
+                var digits = 0
+                for (i in 0 until offset.coerceAtMost(formattedText.length)) {
+                    if (formattedText[i] != ' ') {
+                        digits++
+                    }
+                }
+                return digits
+            }
+        }
+
+        return TransformedText(AnnotatedString(formattedText.toString()), offsetMapping)
+    }
 }
