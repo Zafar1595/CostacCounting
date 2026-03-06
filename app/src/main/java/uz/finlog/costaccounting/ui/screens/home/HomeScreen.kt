@@ -16,6 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -151,17 +152,30 @@ fun HomeScreen(viewModel: HomeViewModel, navController: NavController) {
                 }
 
                 groupedExpenses.forEach { (date, expenseList) ->
+                    val dailyTotal = expenseList.sumOf { it.amount }.formatAmount()
+
                     item {
-                        Text(
-                            text = date,
-                            style = MaterialTheme.typography.titleMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                        Row(
                             modifier = Modifier
                                 .padding(top = 12.dp)
                                 .padding(horizontal = 16.dp)
                                 .fillMaxWidth(),
-                            textAlign = TextAlign.Start
-                        )
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = date,
+                                style = MaterialTheme.typography.titleMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                                textAlign = TextAlign.Start
+                            )
+                            Text(
+                                text = "$dailyTotal $selectedCurrency",
+                                style = MaterialTheme.typography.titleSmall,
+                                color = MaterialTheme.colorScheme.secondary,
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
 
                     items(expenseList) { expense ->

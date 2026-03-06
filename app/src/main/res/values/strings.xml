@@ -55,6 +55,9 @@
     <string name="select_date">Выбор даты</string>
     <string name="apply">Применить</string>
     <string name="filter">Фильтр</string>
+    <string name="chart">График</string>
+    <string name="list">Список</string>
+    <string name="no_data_for_selected_month">Нет данных на выбранный месяц</string>
 
     <!-- Russian month names (если нужно для строк) -->
     <string-array name="russian_months">

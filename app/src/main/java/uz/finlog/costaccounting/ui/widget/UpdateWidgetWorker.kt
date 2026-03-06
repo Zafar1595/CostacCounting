@@ -1,9 +1,6 @@
 package uz.finlog.costaccounting.ui.widget
 
 import android.content.Context
-import android.text.format.DateUtils
-import androidx.compose.foundation.gestures.Orientation
-import androidx.datastore.preferences.core.doublePreferencesKey
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.glance.appwidget.state.updateAppWidgetState
 import androidx.work.CoroutineWorker
@@ -27,7 +24,9 @@ class UpdateWidgetWorker(
             // 1. Получаем данные
             val startOfMonth = Calendar.getInstance().apply {
                 set(Calendar.DAY_OF_MONTH, 1)
-                // обнуляем часы/минуты...
+                set(Calendar.HOUR, 0)
+                set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0)
             }.timeInMillis
 
             val total = repository.getTotalSpentSince(startOfMonth)
