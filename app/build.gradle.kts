@@ -22,8 +22,17 @@ android {
     }
 
     buildTypes {
+        debug {
+            // Тестовые ID для отладки
+            buildConfigField("String", "AD_UNIT_ID", "ca-app-pub-3940256099942544/6300978111")
+            buildConfigField("String", "AD_UNIT_ID_2", "ca-app-pub-3940256099942544/1033173712")
+        }
         release {
             isMinifyEnabled = false
+            // Боевые ID для релиза
+            buildConfigField("String", "AD_UNIT_ID", "ca-app-pub-5869958442327321/6279705954")
+            buildConfigField("String", "AD_UNIT_ID_2", "ca-app-pub-5869958442327321/5693366682")
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
